@@ -16,10 +16,8 @@ Super Resolution Test and Development Framework.
 ## Setup
 
     > git clone https://github.com/nasa-nccs-hpda/super-resolution-climate.git
-    > cd super-resolution-climate/notebooks/
-    > ln -s ../sres ./sres
-    > cd ../scripts
-    > ln -s ../sres ./sres
+    > cd super-resolution-climate/
+    > setup.sh
 
 ## Inference
 
