@@ -59,7 +59,7 @@ class ResultImagePlot(Plot):
 		self.images_data: Dict[str, xa.DataArray] = self.update_tile_data(update_model=True)
 		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.trainer.data_timestamps[tset]) )
 		self.plot_titles: List[str] = list(self.images_data.keys())
-		self.ims = {}
+		self.ims: Dict[int,AxesImage] = {}
 		self.callbacks = dict(button_press_event=self.select_point)
 		self.create_figure( nrows=4, ncols=1, callbacks=self.callbacks, title='SRes Loss Over Training Epochs' )
 		self.tslider.set_callback( self.time_update )
@@ -151,7 +151,9 @@ class ResultImagePlot(Plot):
 	def update_subplot(self, iplot: int):
 		ptype: str = self.plot_titles[iplot]
 		image: xa.DataArray = self.images_data[ptype]
-		self.ims[ iplot ].set_data(image.values)
+		self.ims[iplot].set_data(image.values)
+		self.ims[iplot].changed()
+		self.ims[iplot].stale = True
 
 	def get_subplot_title(self, ptype: str) -> str:
 		loss: float = None
