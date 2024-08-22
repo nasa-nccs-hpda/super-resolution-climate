@@ -26,12 +26,20 @@ Each workflow configuraration is composed of several sections, each with a separ
 the *configuration* dict specifies the name of the config file to be used for each section, i.e. the *task* section is configured with the file [config/task/swot-2.2v.yaml](./config/task/swot-2.2v.yaml). 
 The *ccustom* dict is used to override individual config values.  The *cname* parameter specifies the name of the root config file (e.g. [config/sres.yaml](./config/sres.yaml) )
 
+## Training
+
+The scripts under *super-resolution-climate/scripts* are used to train various super-resolution networks with various configurations. The notebook 
+[super-resolution-climate/notebooks/plot_training.ipynb](./notebooks/plot_training.ipynb) is used to display a plot of 
+loss vs. epochs for the configured training instance.
+
 ## Inference
 
-Run the jupyter notebook: super-resolution-climate/notebooks/plot_results.ipynb
+The notebooks in [super-resolution-climate/notebooks](./super-resolution-climate/notebooks) that plot the training results 
+will execute the inference engine and display the result whenever the time or tile 
+indices change (via sliders at the bottom).  The notebook [plot_result_tiles.ipynb](./notebooks/plot_result_tiles.ipynb) is 
+used to explore the super-resolution results for individual tiles, and notebook [plot_result_images.ipynb](./notebooks/plot_result_images.ipynb) is 
+used to display the assembled tiles for each region.
 
-This notebook executes the inference engine and displays the result 
-whenever the time or subtile indices change (via sliders at the bottom).
 
 
 
