@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from model.common.tools import extract_image_patches
+from sres.model.common.tools import extract_image_patches
 import math
 
 class DropPath(nn.Module):

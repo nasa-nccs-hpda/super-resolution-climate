@@ -4,8 +4,8 @@ import torch.nn.functional as F
 from sres.base.util.config import cfg
 from typing import Any, Dict, List, Tuple, Type, Optional, Union, Sequence, Mapping
 from sres.base.util.logging import lgm, exception_handled, log_timing
-from model.common.unet import DoubleConv
-from model.common.common import FModule
+from sres.model.common.unet import DoubleConv
+from sres.model.common.common import FModule
 
 def get_model( **config ) -> nn.Module:
 	return LapSRN(**config)

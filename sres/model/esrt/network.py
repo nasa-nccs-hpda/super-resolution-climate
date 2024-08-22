@@ -2,10 +2,10 @@ from . import blocks
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from model.common.tools import reverse_patches
-from model.common.transformer import drop_path, Mlp, MLABlock
+from sres.model.common.tools import reverse_patches
+from sres.model.common.transformer import drop_path, Mlp, MLABlock
 from sres.base.util.logging import lgm
-from model.common.common import FModule
+from sres.model.common.common import FModule
 
 def get_model( **config ) -> nn.Module:
 	return ESRT(**config)

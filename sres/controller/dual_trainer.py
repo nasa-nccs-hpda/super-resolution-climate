@@ -9,10 +9,10 @@ from sres.base.io.loader import TSet, srRes, batchDomain
 from sres.base.util.config import cdelta, cfg, cval, get_data_coords, dateindex
 from sres.base.gpu import set_device
 from sres.base.util.array import array2tensor, downsample, upsample
-from model.mscnn.network import Upsampler
+from sres.model.mscnn.network import Upsampler
 from sres.data.batch import BatchDataset
 from sres.base.util.dates import TimeType
-from model.manager import SRModels, ResultsAccumulator
+from sres.model.manager import SRModels, ResultsAccumulator
 from sres.base.util.logging import lgm
 from sres.base.util.ops import pctnan, pctnant
 from sres.controller.checkpoints import CheckpointManager

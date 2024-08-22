@@ -1,4 +1,4 @@
-from model.util import *
+from sres.model.util import *
 import torch, math, torch.nn as nn
 conv_spec = { 2: (6, 2, 2),  4: (8, 4, 2),  8: (12, 8, 2) }
 def projection_conv( in_channels: int, out_channels: int, scale: int, upscale=True ):

@@ -1,10 +1,10 @@
 import torch, torch.nn as nn
 from collections import OrderedDict
-from model.common.residual import Residual
-from model.common.upsample import Upsample
-from model.util import *
+from sres.model.common.residual import Residual
+from sres.model.common.upsample import Upsample
+from sres.model.util import *
 from sres.base.util.logging import lgm, exception_handled, log_timing
-from model.common.common import FModule
+from sres.model.common.common import FModule
 
 def get_model( **config ) -> nn.Module:
 	return SRDN(**config)

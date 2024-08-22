@@ -1,8 +1,8 @@
 from ..common.residual import ResBlock
 from ..common.upsample import SPUpsample
-from model.util import *
+from sres.model.util import *
 import torch, math, torch.nn as nn
-from model.common.common import FModule
+from sres.model.common.common import FModule
 
 def get_model( **config ) -> nn.Module:
 	return EDSR(**config)

@@ -1,6 +1,6 @@
 from . import blocks
 import torch.nn as nn
-from model.common.common import FModule
+from sres.model.common.common import FModule
 
 def get_model( **config ) -> nn.Module:
 	return RCAN(**config)

@@ -1,5 +1,5 @@
 import torch, math, torch.nn as nn
-from model.util import *
+from sres.model.util import *
 from sres.base.util.logging import lgm, exception_handled, log_timing
 
 class Upsample(nn.Module):
