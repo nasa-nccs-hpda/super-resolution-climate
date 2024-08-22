@@ -34,7 +34,7 @@ loss vs. epochs for the configured training instance.
 
 ## Inference
 
-The notebooks in [super-resolution-climate/notebooks](./super-resolution-climate/notebooks) that plot the training results 
+The notebooks in [super-resolution-climate/notebooks](./notebooks) that plot the training results 
 will execute the inference engine and display the result whenever the time or tile 
 indices change (via sliders at the bottom).  The notebook [plot_result_tiles.ipynb](./notebooks/plot_result_tiles.ipynb) is 
 used to explore the super-resolution results for individual tiles, and notebook [plot_result_images.ipynb](./notebooks/plot_result_images.ipynb) is 
