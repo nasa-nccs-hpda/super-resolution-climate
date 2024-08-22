@@ -77,7 +77,7 @@ class SRModels:
 
 	def get_sample_target(self ) -> xa.DataArray:
 		result = self.sample_target()
-	#	result = ( result.isel(channel=self.cids)) if (len(self.cids) < self.sample_target().sizes['channel']) else self.sample_target
+		#	result = ( result.isel(channel=self.cids)) if (len(self.cids) < self.sample_target().sizes['channel']) else self.sample_target
 		return result
 
 	def get_sample_input(self, targets_only=True ) -> xa.DataArray:
@@ -91,7 +91,7 @@ class SRModels:
 		return data_array
 
 	def get_model(self) -> nn.Module:
-		importpath = f"fmod.model.sres.{self.model_name}.network"
+		importpath = f"sres.model.{self.model_name}.network"
 		model_package = importlib.import_module(importpath)
 		return model_package.get_model( **self.model_config ).to(self.device)
 

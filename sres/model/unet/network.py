@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Any, Dict, List, Tuple, Type, Optional, Union, Sequence, Mapping
 from sres.base.util.logging import lgm, exception_handled, log_timing
-from sres.model.sres.common.common import FModule
+from model.common.common import FModule
 
 def get_model( **config ) -> nn.Module:
     return UNetSR(**config)

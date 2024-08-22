@@ -1,8 +1,8 @@
 # Deep Back-Projection Networks For Super-Resolution
 # https://arxiv.org/abs/1803.02735
-from sres.model.sres.util import *
+from model.util import *
 import torch, math, torch.nn as nn
-from sres.model.sres.common.common import FModule
+from model.common.common import FModule
 from .blocks import DenseProjection
 
 def get_model( **config ) -> nn.Module:

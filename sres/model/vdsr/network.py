@@ -2,9 +2,9 @@ import torch.nn as nn
 import torch, math
 from typing import Any, List, Tuple, Callable, Optional, Union, overload
 from sres.base.util.config import cfg
-from sres.model.sres.util import *
-from sres.model.sres.common.cnn import BasicBlock, default_conv
-from sres.model.sres.common.common import FModule
+from model.util import *
+from model.common.cnn import BasicBlock, default_conv
+from model.common.common import FModule
 
 def get_model( **config ) -> nn.Module:
 	return VDSR(**config)

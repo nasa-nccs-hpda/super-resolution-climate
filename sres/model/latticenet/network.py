@@ -2,7 +2,7 @@ from . import blocks
 import torch, math
 import torch.nn as nn
 from typing import Any, Dict, List, Tuple, Type, Optional, Union, Sequence, Mapping
-from sres.model.sres.common.common import FModule
+from model.common.common import FModule
 
 def get_model( **config ) -> nn.Module:
 	return LatticeNet(**config)
