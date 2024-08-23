@@ -85,11 +85,11 @@ class ResultImagePlot(Plot):
 		return self.trainer.batch_domain
 
 	def update_tile_data( self, **kwargs ) -> Dict[str, xa.DataArray]:
-		images_data, eval_losses = self.trainer.process_image( self.tset, self.varId, self.time_index, interp_loss=True, **kwargs )
+		images_data, eval_losses = self.trainer.process_image( self.tset,  self.time_index, interp_loss=True, var=self.varId, **kwargs )
 		if len( eval_losses ) > 0:
 			self.losses = eval_losses
 			lgm().log(f"update_tile_data ---> images = {list(images_data.keys())}")
-			return images_data
+			return list(images_data.values())[0]
 
 	def select_point(self,event):
 		lgm().log(f'Mouse click: button={event.button}, dbl={event.dblclick}, x={event.xdata:.2f}, y={event.ydata:.2f}')
@@ -151,6 +151,7 @@ class ResultImagePlot(Plot):
 	def update_subplot(self, iplot: int):
 		ptype: str = self.plot_titles[iplot]
 		image: xa.DataArray = self.images_data[ptype]
+		lgm().log( f" >> update_subplot_image[{ptype}]: image{image.dims}{image.shape}")
 		self.ims[iplot].set_data(image.values)
 		self.ims[iplot].changed()
 		self.ims[iplot].stale = True

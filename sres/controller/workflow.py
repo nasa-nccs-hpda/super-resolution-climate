@@ -1,10 +1,11 @@
 import time
-from sres.base.util.config import ConfigContext
+import xarray as xa
+from sres.base.util.config import ConfigContext, cfg
 from sres.controller.dual_trainer import ModelTrainer
 from sres.base.util.logging import lgm, exception_handled, log_timing
 from sres.base.gpu import save_memory_snapshot
 from sres.base.io.loader import TSet, srRes
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 from sres.view.plot.tiles  import ResultTilePlot
 from sres.view.plot.images import ResultImagePlot
 from sres.view.plot.training import TrainingPlot
@@ -35,6 +36,23 @@ class WorkflowController(object):
 					save_memory_snapshot()
 
 				lgm().log(f"Completed training model: {model}")
+
+	def inference(self, model: str, timestep: int, config: Dict, **kwargs)-> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
+		with ConfigContext(self.cname, model=model, **config) as cc:
+			self.config = cc
+			self.trainer = ModelTrainer(cc)
+			images_data, eval_losses = self.trainer.process_image(TSet.Validation, timestep, interp_loss=True, **kwargs)
+			if kwargs.get('save', True):
+				self.save_results(images_data, eval_losses)
+			return images_data, eval_losses
+
+	def save_results(self, inference_data: Tuple[Dict[str,Dict[str,xa.DataArray]]], inference_losses: Dict[str,Dict[str,float]] ):
+		for vname in inference_data[0].keys():
+			var_results: Dict[str,xa.DataArray] = inference_data[vname]
+			var_losses: Dict[str,float] =  inference_losses[vname]
+			dset = xa.Dataset(data_vars=var_results, attrs=var_losses)
+			results_path = f"{cfg().platform.results}"
+			dset.to_netcdf( results_path, "w")
 
 	def init_plotting(self, cname, model, **kwargs ):
 		self.model = model

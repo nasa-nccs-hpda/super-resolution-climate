@@ -354,7 +354,7 @@ class ModelTrainer(object):
 			tile_range = range(ctile['start'], ctile['end'])
 			return self.tile_index in tile_range
 
-	def process_image(self, tset: TSet, ivar: int, itime: int, **kwargs) -> Tuple[Dict[str,xa.DataArray], Dict[str,float]]:
+	def process_image(self, tset: TSet, itime: int, **kwargs) -> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
 		seed = kwargs.get('seed', 333)
 		torch.manual_seed(seed)
 		torch.cuda.manual_seed(seed)
@@ -370,6 +370,8 @@ class ModelTrainer(object):
 		batch_model_losses, batch_interp_losses, interp_sloss, ibatch, batches = [], [], 0.0, 0, []
 		ctime = self.data_timestamps[TSet.Train][itime]
 		timeslice: xa.DataArray = self.load_timeslice(ctime)
+		vnames, nvars, cvar = self.target_variables, len(self.target_variables), kwargs.get('var',None)
+		output_vars = [ cvar ] if cvar is not None else vnames
 		print( f"Loaded timeslice{timeslice.dims}{timeslice.shape}, mean={np.nanmean(timeslice.values)}:.3f")
 		tile_iter = TileIterator.get_iterator( ntiles=timeslice.sizes['tiles'] )
 		for itile, ctile in enumerate(iter(tile_iter)):
@@ -390,14 +392,16 @@ class ModelTrainer(object):
 				ibatch = ibatch + 1
 				batches.append( dict(input=denorm(binput,batch_data.attrs), target=denorm(btarget,batch_data.attrs), interp=denorm(binterp,batch_data.attrs), output=denorm(boutput,batch_data.attrs)) )
 
-		images = self.assemble_images( batches, ivar, timeslice.coords['tiles'].values, timeslice.attrs['grid_shape'] )
-		proc_time = time.time() - proc_start
-		lgm().log(f" --- batch_model_losses = {batch_model_losses}")
-		lgm().log(f" --- batch_interp_losses = {batch_interp_losses}")
-		model_loss: float = np.array(batch_model_losses).mean()
-		ntotal_params: int = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
-		lgm().log(f' -------> Exec {tset.value} model with {ntotal_params} wts on {tset.value} tset took {proc_time:.2f} sec, model loss = {model_loss:.4f}')
-		losses = dict( model=model_loss, interp=np.array(batch_interp_losses).mean() )
+		images, losses = {}, {}
+		for ivar, vname in enumerate(output_vars):
+			images[vname] = self.assemble_images( batches, ivar, timeslice.coords['tiles'].values, timeslice.attrs['grid_shape'] )
+			proc_time = time.time() - proc_start
+			lgm().log(f" --- batch_model_losses = {batch_model_losses}")
+			lgm().log(f" --- batch_interp_losses = {batch_interp_losses}")
+			model_loss: float = np.array(batch_model_losses).mean()
+			ntotal_params: int = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
+			lgm().log(f' -------> Exec {tset.value} model with {ntotal_params} wts on {tset.value} tset took {proc_time:.2f} sec, model loss = {model_loss:.4f}')
+			losses[vname] = dict( model=model_loss, interp=np.array(batch_interp_losses).mean() )
 		return images, losses
 
 	def assemble_images(self, batches: List[Dict[str,np.ndarray]], ivar: int, tile_ids: np.ndarray, grid_shape: Dict[str, int] ) -> Dict[str,xa.DataArray]:
