@@ -18,6 +18,8 @@ Execute the following to set up a conda environment for super-resolution-climate
 
 ## Setup
 
+Execute the following to install and setup the super-resolution-climate framework.
+
     > git clone https://github.com/nasa-nccs-hpda/super-resolution-climate.git
     > cd super-resolution-climate/
     > setup.sh
