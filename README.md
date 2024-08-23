@@ -5,7 +5,8 @@ Super Resolution for Weather/Climate Data: Test and Development Framework.
 
 ## Environment
 
-Start by installing [miniforge](https://github.com/conda-forge/miniforge) and execute the following:
+If mamba is not available, install [miniforge](https://github.com/conda-forge/miniforge).
+Execute the following to set up a conda environment for super-resolution-climate:
 
     >  mamba create -n sres python=3.11
     >  mamba activate sres
