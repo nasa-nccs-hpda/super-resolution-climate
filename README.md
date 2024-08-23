@@ -3,15 +3,17 @@
 
 Super Resolution for Weather/Climate Data: Test and Development Framework.
 
-## Conda environment
+## Environment
 
-    >   * mamba create -n sres python=3.11
-    >   * mamba activate sres
-    >   * mamba install -c conda-forge dask scipy xarray netCDF4 ipywidgets=7.8 jupyterlab=4.0 jupyterlab_widgets ipykernel=6.29 ipympl=0.9 ipython=8.26
-    >   * mamba install -c pytorch -c nvidia -c conda-forge litdata pytorch lightning lightning-utilities torchvision torchaudio pytorch-cuda cuda-python
-    >   * pip install parse  nvidia-dali-cuda120
-    >   * pip install hydra-core --upgrade
-    >   * ipython kernel install --user --name=sres
+Start by installing [miniforge](https://github.com/conda-forge/miniforge) and execute the following:
+
+    >  mamba create -n sres python=3.11
+    >  mamba activate sres
+    >  mamba install -c conda-forge dask scipy xarray netCDF4 ipywidgets=7.8 jupyterlab=4.0 jupyterlab_widgets ipykernel=6.29 ipympl=0.9 ipython=8.26
+    >  mamba install -c pytorch -c nvidia -c conda-forge litdata pytorch lightning lightning-utilities torchvision torchaudio pytorch-cuda cuda-python
+    >  pip install parse  nvidia-dali-cuda120
+    >  pip install hydra-core --upgrade
+    >  ipython kernel install --user --name=sres
 
 ## Setup
 
