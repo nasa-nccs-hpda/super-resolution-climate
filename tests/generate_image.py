@@ -16,6 +16,6 @@ configuration = dict(
 	platform = "explore"
 )
 controller = WorkflowController( cname, configuration )
-controller.init_plotting( cname, model )
+controller.initialize( cname, model )
 
 controller.get_result_image_view( TSet.Validation, channel=varnames[vid], fsize=8.0)

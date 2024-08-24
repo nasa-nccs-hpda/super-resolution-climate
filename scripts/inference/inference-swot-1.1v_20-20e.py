@@ -14,6 +14,8 @@ configuration = dict(
 )
 
 controller = WorkflowController( cname, configuration, interp_loss=True )
+controller.initialize( cname, model, **ccustom )
+
 images_data, eval_losses = controller.inference( model, timestep, ccustom, save=True )
 
 

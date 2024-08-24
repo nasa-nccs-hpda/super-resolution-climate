@@ -57,7 +57,7 @@ class WorkflowController(object):
 			print( f"Saving inference results to: {results_path}")
 			dset.to_netcdf( results_path, "w")
 
-	def init_plotting(self, cname, model, **kwargs ):
+	def initialize(self, cname, model, **kwargs ):
 		self.model = model
 		self.config = ConfigContext.activate_global( cname, model=model, **kwargs )
 		self.trainer = ModelTrainer( self.config )
