@@ -1,7 +1,5 @@
 import numpy as np, xarray as xa, math
 import torch, dataclasses
-from nvidia.dali.tensors import TensorCPU, TensorListCPU
-from sres.base.util.dates import date_list, year_range
 from sres.base.util.config import cfg2meta, cfg
 from typing import Iterable, List, Tuple, Union, Optional, Dict, Any, Sequence
 from sres.base.util.model import dataset_to_stacked
@@ -72,14 +70,12 @@ def array2tensor( darray: Union[xa.DataArray,np.ndarray] ) -> Tensor:
     return torch.tensor( array_data, device=get_device(), requires_grad=True, dtype=torch.float32 )
 
 def downsample( target_data: Union[xa.DataArray,Tensor], **kwargs) -> Tensor:
-    for cn in ['x','y']: UPSAMPLE_COORDS[cn] = target_data.coords[cn].values
     target_tensor: Tensor = array2tensor(target_data) if type(target_data) is xa.DataArray else target_data
     scale_factor = kwargs.get('scale_factor', math.prod(cfg().model.downscale_factors))
     downsampled = torch.nn.functional.interpolate(target_tensor, scale_factor=1.0/scale_factor, mode=torch_interp_mode(True))
     return downsampled
 
-def xa_downsample(input_array: xa.DataArray, **kwargs) -> xa.DataArray:
-    for cn in ['x', 'y']: UPSAMPLE_COORDS[cn] = input_array.coords[cn].values
+def xa_downsample( input_array: xa.DataArray, **kwargs) -> xa.DataArray:
     scale_factor =  kwargs.get('scale_factor', math.prod(cfg().model.downscale_factors) )
     coords = { cn: input_array.coords[cn][::scale_factor] for cn in ['x', 'y'] }
     downsampled =  input_array.interp(coords=coords, method=cfg().task.downsample_mode, assume_sorted=True)
@@ -90,8 +86,7 @@ def upsample( input_tensor: Tensor ) -> Tensor:
     upsampled = torch.nn.functional.interpolate(input_tensor, scale_factor=scale_factor, mode=torch_interp_mode(False))
     return upsampled
 
-def xa_upsample(input_array: xa.DataArray, **kwargs) -> xa.DataArray:
-    coords = kwargs.get( 'coords', UPSAMPLE_COORDS )
+def xa_upsample(input_array: xa.DataArray, coords: Dict[str,np.ndarray]) -> xa.DataArray:
     csize = { cn:cv.shape for cn,cv in coords.items() }
     print( f"xa_upsample, input{input_array.shape}, coords{csize}")
     upsampled = input_array.interp(coords=coords, method=cfg().task.upsample_mode, assume_sorted=True)
