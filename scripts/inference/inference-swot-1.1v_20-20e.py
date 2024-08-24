@@ -8,7 +8,7 @@ refresh =  False
 timestep: int = 0
 
 configuration = dict(
-	task = "swot-1.1v",
+	task = "SST-tiles-48",
 	dataset = "swot_20-20e",
 	pipeline = "sres",
 	platform = "explore"

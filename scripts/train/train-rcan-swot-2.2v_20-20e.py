@@ -7,7 +7,7 @@ ccustom: Dict[str,Any] = { 'task.nepochs': 100, 'task.lr': 1e-4 }
 refresh =  True
 
 configuration = dict(
-	task = "swot-2.2v",
+	task = "SSS_SST-tiles-48",
 	dataset = "swot_20-20e",
 	pipeline = "sres",
 	platform = "explore"

@@ -1,3 +1,4 @@
+import os
 import time
 import xarray as xa
 from sres.base.util.config import ConfigContext, cfg
@@ -46,12 +47,14 @@ class WorkflowController(object):
 				self.save_results(images_data, eval_losses)
 			return images_data, eval_losses
 
-	def save_results(self, inference_data: Tuple[Dict[str,Dict[str,xa.DataArray]]], inference_losses: Dict[str,Dict[str,float]] ):
-		for vname in inference_data[0].keys():
+	def save_results(self, inference_data: Dict[str,Dict[str,xa.DataArray]], inference_losses: Dict[str,Dict[str,float]] ):
+		for vname in inference_data.keys():
 			var_results: Dict[str,xa.DataArray] = inference_data[vname]
 			var_losses: Dict[str,float] =  inference_losses[vname]
 			dset = xa.Dataset(data_vars=var_results, attrs=var_losses)
-			results_path = f"{cfg().platform.results}"
+			results_path = f"{cfg().platform.results}/inference/{cfg().defaults['dataset']}/{cfg().defaults['task']}/{vname}.nc"
+			os.makedirs( os.path.dirname(results_path), exist_ok=True )
+			print( f"Saving inference results to: {results_path}")
 			dset.to_netcdf( results_path, "w")
 
 	def init_plotting(self, cname, model, **kwargs ):
