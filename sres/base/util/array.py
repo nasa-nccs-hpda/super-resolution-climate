@@ -66,20 +66,21 @@ def ds2array( dset: xa.Dataset, **kwargs ) -> xa.DataArray:
     darray.attrs['channels'] = channels
     return darray.transpose( "tiles", "channels", coords['y'], coords['x'] )
 
-def array2tensor( darray: xa.DataArray ) -> Tensor:
-    array_data: np.ndarray = np.ravel(darray.values).reshape( darray.shape )
+def array2tensor( darray: Union[xa.DataArray,np.ndarray] ) -> Tensor:
+    nparray: np.ndarray = darray.values if type(darray) is xa.DataArray else darray
+    array_data: np.ndarray = np.ravel(nparray).reshape( nparray.shape )
     return torch.tensor( array_data, device=get_device(), requires_grad=True, dtype=torch.float32 )
 
-def downsample( target_data: xa.DataArray) -> Tensor:
+def downsample( target_data: Union[xa.DataArray,Tensor], **kwargs) -> Tensor:
     for cn in ['x','y']: UPSAMPLE_COORDS[cn] = target_data.coords[cn].values
-    target_tensor: Tensor = array2tensor(target_data)
-    scale_factor = math.prod(cfg().model.downscale_factors)
+    target_tensor: Tensor = array2tensor(target_data) if type(target_data) is xa.DataArray else target_data
+    scale_factor = kwargs.get('scale_factor', math.prod(cfg().model.downscale_factors))
     downsampled = torch.nn.functional.interpolate(target_tensor, scale_factor=1.0/scale_factor, mode=torch_interp_mode(True))
     return downsampled
 
-def xa_downsample(input_array: xa.DataArray) -> xa.DataArray:
+def xa_downsample(input_array: xa.DataArray, **kwargs) -> xa.DataArray:
     for cn in ['x', 'y']: UPSAMPLE_COORDS[cn] = input_array.coords[cn].values
-    scale_factor = math.prod(cfg().model.downscale_factors)
+    scale_factor =  kwargs.get('scale_factor', math.prod(cfg().model.downscale_factors) )
     coords = { cn: input_array.coords[cn][::scale_factor] for cn in ['x', 'y'] }
     downsampled =  input_array.interp(coords=coords, method=cfg().task.downsample_mode, assume_sorted=True)
     return downsampled

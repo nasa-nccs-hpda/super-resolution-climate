@@ -1,7 +1,7 @@
 import os
 import time
 import xarray as xa
-from sres.base.util.config import ConfigContext, cfg
+from sres.base.util.config import ConfigContext, cfg, config
 from sres.controller.dual_trainer import ModelTrainer
 from sres.base.util.logging import lgm, exception_handled, log_timing
 from sres.base.gpu import save_memory_snapshot
@@ -52,7 +52,7 @@ class WorkflowController(object):
 			var_results: Dict[str,xa.DataArray] = inference_data[vname]
 			var_losses: Dict[str,float] =  inference_losses[vname]
 			dset = xa.Dataset(data_vars=var_results, attrs=var_losses)
-			results_path = f"{cfg().platform.results}/inference/{cfg().defaults['dataset']}/{cfg().defaults['task']}/{vname}.nc"
+			results_path = f"{cfg().platform.results}/inference/{config()['dataset']}/{config()['task']}/{vname}.nc"
 			os.makedirs( os.path.dirname(results_path), exist_ok=True )
 			print( f"Saving inference results to: {results_path}")
 			dset.to_netcdf( results_path, "w")

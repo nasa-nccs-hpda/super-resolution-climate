@@ -9,7 +9,6 @@ from sres.base.io.loader import TSet, srRes, batchDomain
 from sres.base.util.config import cdelta, cfg, cval, get_data_coords, dateindex
 from sres.base.gpu import set_device
 from sres.base.util.array import array2tensor, downsample, upsample
-from sres.model.mscnn.network import Upsampler
 from sres.data.batch import BatchDataset
 from sres.base.util.dates import TimeType
 from sres.model.manager import SRModels, ResultsAccumulator
@@ -377,8 +376,9 @@ class ModelTrainer(object):
 		for itile, ctile in enumerate(iter(tile_iter)):
 			lgm().log(f"     -----------------    evaluate[{tset.name}]: ctime[{itime}]={ctime}, time_index={self.time_index}, ctile[{itile}]={ctile}", display=True)
 			batch_data: Optional[xa.DataArray] = self.get_srbatch(ctile, ctime, shuffle=False)
-			# print( f" --> batch_data{list(batch_data.shape)} mean={batch_data.values.mean()}")
 			if batch_data is None: break
+			# print( f" --> batch_data{list(batch_data.shape)} mean={batch_data.values.mean()}")
+
 			binput, boutput, btarget = self.apply_network( batch_data )
 			if binput is not None:
 				binterp = upsample(binput)
@@ -500,31 +500,17 @@ class ModelTrainer(object):
 		return result
 
 	def apply_network(self, target_data: xa.DataArray ) -> Tuple[Tensor,TensorOrTensors,Tensor]:
-		target_channels = cfg().task.target_variables
-		btarget: Tensor = array2tensor( target_data.sel(channels=target_channels) )
-		binput = downsample(target_data)
-		product: TensorOrTensors = self.model( binput )
-		return binput, product, btarget
-
-	def forecast(self, **kwargs ) -> Tuple[ List[np.ndarray], List[np.ndarray], List[np.ndarray] ]:
-		seed = kwargs.get('seed',0)
-		max_step = kwargs.get('max_step',5)
-		torch.manual_seed(seed)
-		torch.cuda.manual_seed(seed)
-		inputs, predictions, targets = [], [], []
-		with torch.inference_mode():
-			for istep, batch_data in enumerate(self.data_iter):
-				inp: torch.Tensor = array2tensor(batch_data['input'])
-				tar: torch.Tensor = array2tensor(batch_data['target'])
-				if istep == max_step: break
-				out: Tensor = self.model(inp)
-				lgm().log(f' * STEP {istep}, in: [{list(inp.shape)}, {pctnant(inp)}], out: [{list(out.shape)}, {pctnant(out)}]')
-				predictions.append( npa(out) )
-				targets.append( npa(tar) )
-				inputs.append( npa(inp) )
-		lgm().log(f' * INFERENCE complete, #predictions={len(predictions)}, target: {targets[0].shape}', display=True )
-		for input1, prediction, target in zip(inputs,predictions,targets):
-			lgm().log(f' ---> *** input: {input1.shape}, pctnan={pctnan(input1)} *** prediction: {prediction.shape}, pctnan={pctnan(prediction)} *** target: {target.shape}, pctnan={pctnan(target)}')
-
-		return inputs, targets, predictions
+		dsample = cfg().task.get('data_downsample',1.0)
+		icdim = list(target_data.dims).index('channels')
+		input_tensor: Tensor = array2tensor( target_data )
+		if dsample > 1.0:
+			input_tensor =  downsample( input_tensor, scale_factor=dsample )
+		target_channels: List[str] = cfg().task.target_variables
+		output_tensor: Tensor = input_tensor
+		if target_data.shape[icdim] > len(target_channels):
+			tindx: Tensor = array2tensor( np.in1d(target_data.coords['channels'], target_channels).nonzero()[0] )
+			output_tensor = torch.index_select(input_tensor, icdim, tindx)
+		input_tensor = downsample( input_tensor )
+		result_tensor: TensorOrTensors = self.model( input_tensor )
+		return input_tensor, result_tensor, output_tensor
 
