@@ -4,7 +4,7 @@ from sres.base.util.config import cfg
 from sres.base.util.logging import lgm
 from torch.optim.optimizer import Optimizer
 from torch.nn import Module
-from sres.base.io.loader import TSet, srRes
+from base.controller.config import TSet, srRes
 import os
 
 

@@ -1,33 +1,16 @@
 import xarray as xa, math
-from typing import Any, Dict, List, Tuple, Type, Optional, Union
+from typing import Dict, List
 from sres.base.util.config import cfg
 from enum import Enum
 from datetime import date, datetime
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 from sres.base.util.config import start_date
 from sres.base.util.dates import date_list
-
-class TSet(Enum):
-	Train = 'train'
-	Validation = 'valid'
-	Test = 'test'
-	Upsample = 'upsample'
 
 class ncFormat(Enum):
 	Standard = 'standard'
 	DALI = 'dali'
 	SRES = "sres"
-
-class srRes(Enum):
-	Low = 'lr'
-	High = 'hr'
-	Raw = 'raw'
-
-	@classmethod
-	def from_config(cls, sval: str ) -> 'srRes':
-		if sval == "low": return cls.Low
-		if sval == "high": return cls.High
-		if sval == "raw": return cls.Raw
 
 class batchDomain(Enum):
 	Time = 'time'

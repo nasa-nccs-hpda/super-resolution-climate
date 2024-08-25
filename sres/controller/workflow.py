@@ -5,7 +5,7 @@ from sres.controller.dual_trainer import ModelTrainer
 from sres.base.util.logging import lgm, exception_handled, log_timing
 from sres.data.inference import save_inference_results, load_inference_results
 from sres.base.gpu import save_memory_snapshot
-from sres.base.io.loader import TSet, srRes
+from sres.controller.config import TSet, ResultStructure
 from typing import Any, Dict, List, Tuple
 from sres.view.plot.tiles  import ResultTilePlot
 from sres.view.plot.images import ResultImagePlot
@@ -38,11 +38,29 @@ class WorkflowController(object):
 
 				lgm().log(f"Completed training model: {model}")
 
-	def inference(self, timestep: int,  **kwargs)-> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
-			images_data, eval_losses = self.trainer.process_image(TSet.Validation, timestep, interp_loss=True, update_model=True, **kwargs)
+	def inference(self, timestep: int, data_structure: ResultStructure,  **kwargs)-> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]] ]:
+			varnames = self.trainer.target_variables
+			if   data_structure == ResultStructure.Image:
+				image_results, eval_results = self.trainer.process_image(TSet.Validation, timestep, interp_loss=True, update_model=True, **kwargs)
+			elif data_structure == ResultStructure.Tiles:
+				image_results: Dict[str,Dict[str,xa.DataArray]] = {}
+				eval_results:  Dict[str,Dict[str,float]] = {}
+				condensed_image_results, condensed_eval_results = self.trainer.evaluate( TSet.Validation, time_index=timestep, update_model=True, **kwargs )
+				if len(varnames) == 1:
+					image_results = { varnames[0]: { k:v.squeeze() for k,v in condensed_image_results.items() } }
+					eval_results =   { varnames[0]: condensed_eval_results }
+				else:
+					for varname in varnames:
+						image_results[varname] = { k: imgdata.sel(channels=varname,drop=True) for k, imgdata in condensed_image_results.items() }
+						eval_results[varname] = condensed_eval_results
+			else:
+				raise Exception( f"Unknown result structure: {data_structure}")
 			if kwargs.get('save', True):
-				save_inference_results(images_data, eval_losses)
-			return images_data, eval_losses
+				for vname in varnames:
+					image_data: Dict[str, xa.DataArray] = image_results[vname]
+					eval_loss: Dict[str, float] = eval_results[vname]
+					save_inference_results( vname, data_structure, image_data, eval_loss )
+			return image_results, eval_results
 
 	def initialize(self, cname, model, **kwargs ):
 		self.model = model

@@ -6,6 +6,8 @@
       <sourceFolder url="file://$MODULE_DIR$/scripts" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/sres" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/notebooks/sres" />
+      <excludeFolder url="file://$MODULE_DIR$/tests/sres" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

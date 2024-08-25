@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 from sres.view.plot.base import Plot
 import ipywidgets as ipw, numpy as np
 from sres.base.util.logging import lgm, exception_handled, log_timing
-from sres.base.io.loader import ncFormat, TSet
+from sres.base.io.loader import ncFormat
+from base.controller.config import TSet
 from sres.controller.dual_trainer import ModelTrainer
 
 def subsample( data: np.ndarray, step: int):

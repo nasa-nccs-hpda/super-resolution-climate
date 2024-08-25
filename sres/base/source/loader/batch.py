@@ -10,7 +10,7 @@ from sres.base.util.logging import lgm, log_timing
 from sres.base.util.config import cfg
 from omegaconf import DictConfig, OmegaConf
 from sres.base.util.ops import remove_filepath
-from sres.base.io.loader import TSet, srRes
+from base.controller.config import TSet, srRes
 
 class SRDataLoader(object):
 

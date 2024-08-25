@@ -1,7 +1,8 @@
 import torch, numpy as np
 import xarray as xa
 from typing  import List, Tuple, Optional, Dict
-from sres.base.io.loader import TSet, batchDomain
+from sres.base.io.loader import batchDomain
+from base.controller.config import TSet, srRes
 from sres.base.util.config import cfg
 from sres.base.util.array import array2tensor, downsample, upsample, xa_downsample, xa_upsample
 import ipywidgets as ipw
@@ -9,7 +10,7 @@ from matplotlib.axes import Axes
 from matplotlib.image import AxesImage
 from xarray.core.coordinates import DataArrayCoordinates
 from sres.controller.dual_trainer import ModelTrainer
-from sres.base.io.loader import TSet, srRes
+from sres.base.io.loader import TSet
 from sres.view.tile_selection_grid import TileSelectionGrid
 from sres.view.plot.widgets import StepSlider
 from sres.base.util.logging import lgm, exception_handled

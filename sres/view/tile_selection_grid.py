@@ -14,7 +14,7 @@ from enum import Enum
 import numpy as np, xarray as xa
 import torch.nn as nn
 import time
-from sres.base.io.loader import TSet, srRes
+from base.controller.config import TSet, srRes
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import  Rectangle, Patch
 

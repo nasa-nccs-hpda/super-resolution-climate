@@ -5,7 +5,8 @@ from torch import Tensor
 from typing import Any, Dict, List, Tuple, Union, Sequence, Optional
 from sres.base.util.config import ConfigContext, cfg
 from sres.data.tiles import TileIterator
-from sres.base.io.loader import TSet, srRes, batchDomain
+from sres.base.io.loader import batchDomain
+from base.controller.config import TSet, srRes
 from sres.base.util.config import cdelta, cfg, cval, get_data_coords, dateindex
 from sres.base.gpu import set_device
 from sres.base.util.array import array2tensor, downsample, upsample
@@ -438,7 +439,7 @@ class ModelTrainer(object):
 		return assembled_images
 
 
-	def evaluate(self, tset: TSet, **kwargs) -> Dict[str,float]:
+	def evaluate(self, tset: TSet, **kwargs) -> Tuple[Dict[str,xa.DataArray],Dict[str,float]]:
 		seed = kwargs.get('seed', 333)
 		assert tset in [ TSet.Validation, TSet.Test ], f"Invalid tset in training evaluation: {tset.name}"
 		torch.manual_seed(seed)
@@ -496,8 +497,9 @@ class ModelTrainer(object):
 					self.checkpoint_manager.save_checkpoint( epoch, 0, TSet.Validation, model_loss, interp_loss )
 				self.validation_loss = model_loss
 		lgm().log(f' -------> Exec {tset.value} model with {ntotal_params} wts on {tset.value} tset took {proc_time:.2f} sec, model loss = {model_loss:.4f}')
-		result = dict( model=model_loss, interp=np.array(batch_interp_losses).mean() )
-		return result
+		losses = dict( model=model_loss, interp=np.array(batch_interp_losses).mean() )
+		results = dict( input=self.get_ml_input(tset), target=self.get_ml_target(tset), product=self.get_ml_product(tset), interp=self.get_ml_interp(tset) )
+		return  results, losses
 
 	def apply_network(self, target_data: xa.DataArray ) -> Tuple[Tensor,TensorOrTensors,Tensor]:
 		dsample = cfg().task.get('data_downsample',1.0)

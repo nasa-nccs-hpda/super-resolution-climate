@@ -1,7 +1,8 @@
 from sres.base.source.loader.raw import SRRawDataLoader
 import xarray as xa, math, os, pickle
 from sres.base.util.config import cfg, config
-from sres.base.io.loader import ncFormat, TSet
+from sres.base.io.loader import ncFormat
+from ...controller.config import TSet
 from omegaconf import DictConfig, OmegaConf
 from xarray.core.dataset import DataVariables
 from nvidia.dali import fn
