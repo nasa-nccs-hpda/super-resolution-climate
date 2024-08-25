@@ -57,7 +57,8 @@ class ResultImagePlot(Plot):
 		self.losses = None
 		self.tileId: int = kwargs.get( 'tile_id', 0 )
 		self.varId: int = kwargs.get( 'var_id', 0 )
-		self.images_data: Dict[str, xa.DataArray] = self.update_tile_data(update_model=True)
+		eval_results, eval_losses = self.update_tile_data(update_model=True)
+		self.images_data: Dict[str, xa.DataArray] = eval_results
 		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.trainer.data_timestamps[tset]) )
 		self.plot_titles: List[str] = list(self.images_data.keys())
 		self.ims: Dict[int,AxesImage] = {}
@@ -107,7 +108,7 @@ class ResultImagePlot(Plot):
 	def time_update(self, sindex: int):
 		lgm().log(f"\n time_update ---> sindex = {sindex}")
 		self.time_index = sindex
-		self.images_data = self.update_tile_data()
+		self.images_data, loss = self.update_tile_data()
 		self.update_subplots()
 
 

@@ -110,7 +110,7 @@ class ResultTilePlot(Plot):
 		print(f" ---> selected_tile: {selected_tile}")
 		if selected_tile is not None:
 			self.tile_index = selected_tile
-			self.images_data = self.update_tile_data()
+			self.images_data, loss = self.update_tile_data()
 			self.update_subplots()
 			lgm().log( f" ---> selected_tile = {selected_tile}")
 
@@ -132,14 +132,14 @@ class ResultTilePlot(Plot):
 	def time_update(self, sindex: int):
 		lgm().log(f"\n time_update ---> sindex = {sindex}")
 		self.time_index = sindex
-		self.images_data = self.update_tile_data()
+		self.images_data, loss = self.update_tile_data()
 		self.update_subplots()
 
 	@exception_handled
 	def tile_update(self, sindex: int):
 		lgm().log( f" <-------------------------- tile_update ---> sindex = {sindex}" )
 		self.tileId = sindex
-		self.images_data = self.update_tile_data()
+		self.images_data, loss = self.update_tile_data()
 		self.update_subplots()
 
 
