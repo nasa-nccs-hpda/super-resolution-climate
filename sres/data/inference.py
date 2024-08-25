@@ -6,7 +6,7 @@ from sres.base.util.logging import lgm, exception_handled, log_timing
 from sres.base.io.loader import TSet, srRes
 from typing import Any, Dict, List, Tuple
 
-def save_inference_results(self, inference_data: Dict[str ,Dict[str ,xa.DataArray]], inference_losses: Dict[str ,Dict[str ,float]] ):
+def save_inference_results( inference_data: Dict[str ,Dict[str ,xa.DataArray]], inference_losses: Dict[str ,Dict[str ,float]] ):
 	for vname in inference_data.keys():
 		var_results: Dict[str ,xa.DataArray] = inference_data[vname]
 		var_losses: Dict[str ,float] =  inference_losses[vname]
@@ -16,7 +16,7 @@ def save_inference_results(self, inference_data: Dict[str ,Dict[str ,xa.DataArra
 		print( f"Saving inference results to: {results_path}")
 		dset.to_netcdf( results_path, "w")
 
-def load_inference_results(self, varname: str ) -> xa.Dataset:
+def load_inference_results( varname: str ) -> xa.Dataset:
 	results_path = f"{cfg().platform.results}/inference/{config()['dataset']}/{config()['task']}/{varname}.nc"
 	dset: xa.Dataset = xa.open_dataset( results_path )
 	print(f"Loading inference results from: {results_path}")
