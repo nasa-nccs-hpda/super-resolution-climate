@@ -2,7 +2,7 @@ import numpy as np, xarray as xa, math
 import torch, dataclasses
 from sres.base.util.config import cfg2meta, cfg
 from typing import Iterable, List, Tuple, Union, Optional, Dict, Any, Sequence
-from sres.base.util.model import dataset_to_stacked
+from sres.base.util.ops import dataset_to_stacked
 from sres.base.gpu import set_device, get_device
 from sres.base.util.ops import format_timedeltas
 

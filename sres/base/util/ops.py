@@ -1,11 +1,11 @@
 import os, glob, torch
 from .parse import parse
-from omegaconf import DictConfig, OmegaConf
-from typing import Any, Dict, List, Tuple, Type, Optional, Union
+from typing import Any, Dict, List, Tuple, Type, Optional, Union, Mapping
 from .config import cfg
 import shutil, xarray as xa
 import numpy as np
 from collections.abc import Iterable
+from sres.base.util.logging import lgm, exception_handled
 from torch import Tensor
 
 def nnan(varray: np.ndarray) -> int: return np.count_nonzero( np.isnan( varray.flatten() ) )
@@ -187,3 +187,165 @@ def print_norms( norms: Dict[str, xa.Dataset] ):
 		for k, ndata in norms[norm].data_vars.items():
 			nval = ndata.values.tolist()
 			print(f" >>>> {k}: {format_float_list(nval)}")
+
+
+def variable_to_stacked( vname: str,  variable: xa.Variable, sizes: Mapping[str, int], preserved_dims: Tuple[str, ...] = ("tiles", "lat", "lon"), ) -> xa.Variable:
+    """Converts an xa.Variable to preserved_dims + ("channels",).
+
+	Any dimensions other than those included in preserved_dims get stacked into a
+	final "channels" dimension. If any of the preserved_dims are missing then they
+	are added, with the data broadcast/tiled to match the sizes specified in
+	`sizes`.
+
+	Args:
+	  vname: Variable name.
+	  variable: An xa.Variable.
+	  sizes: Mapping including sizes for any dimensions which are not present in
+		`variable` but are needed for the output. This may be needed for example
+		for a static variable with only ("lat", "lon") dims, or if you want to
+		encode just the latitude coordinates (a variable with dims ("lat",)).
+	  preserved_dims: dimensions of variable to not be folded in channels.
+
+	Returns:
+	  An xa.Variable with dimensions preserved_dims + ("channels",).
+	"""
+    stack_to_channels_dims = [ d for d in variable.dims if d not in preserved_dims]
+    dims = {dim: variable.sizes.get(dim) or sizes[dim] for dim in preserved_dims}
+    lgm().log( f"#variable_to_stacked: {vname}{variable.dims}{variable.shape}: stack to channels {[ f'{d}[{variable.sizes.get(d,sizes.get(d,1))}]' for d in stack_to_channels_dims]}")
+    if stack_to_channels_dims:
+        variable = variable.stack(channels=stack_to_channels_dims)
+    dims["channels"] = variable.sizes.get("channels", 1)
+    lgm().log(f"  ****> stacked dvar {vname}{variable.dims}: {variable.shape}, preserved_dims={preserved_dims}")
+    result = variable # variable.set_dims(dims)
+    return result
+
+
+def dataset_to_stacked( dataset: xa.Dataset, sizes: Optional[Mapping[str, int]] = None, preserved_dims: Tuple[str, ...] = ("tiles", "lat", "lon") ) -> xa.DataArray:
+    """Converts an xa.Dataset to a single stacked array.
+
+	This takes each consistuent data_var, converts it into BHWC layout
+	using `variable_to_stacked`, then concats them all along the channels axis.
+
+	Args:
+	  dataset: An xa.Dataset.
+	  sizes: Mapping including sizes for any dimensions which are not present in
+		the `dataset` but are needed for the output. See variable_to_stacked.
+	  preserved_dims: dimensions from the dataset that should not be folded in
+		the predictions channels.
+
+	Returns:
+	  An xa.DataArray with dimensions preserved_dims + ("channels",).
+	"""
+    data_vars = [variable_to_stacked(name, dataset.variables[name], sizes or dataset.sizes, preserved_dims) for name in sorted(dataset.data_vars.keys())]
+    lgm().debug(f"dataset_to_stacked: {len(dataset.data_vars)} data_vars, preserved_dims={preserved_dims}, concat-list size= {len(data_vars)}")
+    coords = {dim: coord for dim, coord in dataset.coords.items() if dim in preserved_dims}
+    stacked_data = xa.Variable.concat(data_vars, dim="channels")
+    lgm().log(f"stacked_data{stacked_data.dims}: shape = {stacked_data.shape}, coords={list(coords.keys())}, dsattrs={list(dataset.attrs.keys())}")
+    dims: List = list(stacked_data.dims).copy()
+    vdata: np.ndarray = stacked_data.values
+    if "channels" not in coords:
+        coords["channels"] = np.arange( stacked_data.sizes["channels"], dtype=np.int32 )
+    # print( f"\ndataset_to_stacked: vdata{dims}{vdata.shape} coords={list(coords.keys())}\n" )
+    return xa.DataArray(data=vdata, dims=dims, coords=coords)
+
+
+def stacked_to_dataset(
+    stacked_array: xa.Variable,
+    template_dataset: xa.Dataset,
+    preserved_dims: Tuple[str, ...] = ("tiles", "lat", "lon"),
+) -> xa.Dataset:
+    """The inverse of dataset_to_stacked.
+
+	Requires a template dataset to demonstrate the variables/shapes/coordinates
+	required.
+	All variables must have preserved_dims dimensions.
+
+	Args:
+	  stacked_array: Data in BHWC layout, encoded the same as dataset_to_stacked
+		would if it was asked to encode `template_dataset`.
+	  template_dataset: A template Dataset (or other mapping of DataArrays)
+		demonstrating the shape of output required (variables, shapes,
+		coordinates etc).
+	  preserved_dims: dimensions from the target_template that were not folded in
+		the predictions channels. The preserved_dims need to be a subset of the
+		dims of all the variables of template_dataset.
+
+	Returns:
+	  An xa.Dataset (or other mapping of DataArrays) with the same shape and
+	  type as template_dataset.
+	"""
+    unstack_from_channels_sizes = {}
+    var_names = sorted(template_dataset.keys())
+    for name in var_names:
+        template_var = template_dataset[name]
+        if not all(dim in template_var.dims for dim in preserved_dims):
+            raise ValueError(
+                f"stacked_to_dataset requires all Variables to have {preserved_dims} "
+                f"dimensions, but found only {template_var.dims}.")
+        unstack_from_channels_sizes[name] = {
+            dim: size for dim, size in template_var.sizes.items()
+            if dim not in preserved_dims}
+
+    channels = {name: np.prod(list(unstack_sizes.values()), dtype=np.int64)
+        for name, unstack_sizes in unstack_from_channels_sizes.items()}
+    total_expected_channels = sum(channels.values())
+    found_channels = stacked_array.sizes["channels"]
+    if total_expected_channels != found_channels:
+        raise ValueError(
+            f"Expected {total_expected_channels} channels but found "
+            f"{found_channels}, when trying to convert a stacked array of shape "
+            f"{stacked_array.sizes} to a dataset of shape {template_dataset}.")
+
+    data_vars = {}
+    index = 0
+    for name in var_names:
+        template_var = template_dataset[name]
+        var = stacked_array.isel({"channels": slice(index, index + channels[name])})
+        index += channels[name]
+        var = var.unstack({"channels": unstack_from_channels_sizes[name]})
+        var = var.transpose(*template_var.dims)
+        data_vars[name] = xa.DataArray(
+            data=var,
+            coords=template_var.coords,
+            # This might not always be the same as the name it's keyed under; it
+            # will refer to the original variable name, whereas the key might be
+            # some alias e.g. temperature_850 under which it should be logged:
+            name=template_var.name,
+        )
+    return type(template_dataset)(data_vars)  # pytype:disable=not-callable,wrong-arg-count
+
+def normalize(values: xa.Dataset, scales: xa.Dataset, means: Optional[xa.Dataset], ) -> xa.Dataset:
+    def normalize_array(array):
+        if array.name is None:
+            raise ValueError( "Can't look up normalization constants because array has no name.")
+        if means is not None:
+            if array.name in means:
+                array = array - means[array.name].astype(array.dtype)
+            else:
+                print('No normalization location found for %s', array.name)
+        if scales is not None:
+            if array.name in scales:
+                array = array / scales[array.name].astype(array.dtype)
+            else:
+                print('No normalization scale found for %s', array.name)
+        return array
+    data_vars = { vn: normalize_array(v) for vn, v in values.data_vars.items() }
+    return xa.Dataset( data_vars, coords=values.coords, attrs=values.attrs )
+
+def unnormalize(values: xa.Dataset, scales: xa.Dataset, means: Optional[xa.Dataset] ) -> xa.Dataset:
+    """Unnormalize variables using the given scales and (optionally) means."""
+    def unnormalize_array(array):
+        if array.name is None:
+            raise ValueError( "Can't look up normalization constants because array has no name.")
+        if array.name in scales:
+            array = array * scales[array.name].astype(array.dtype)
+        else:
+            print('No normalization scale found for %s', array.name)
+        if means is not None:
+            if array.name in means:
+                array = array + means[array.name].astype(array.dtype)
+            else:
+                print('No normalization location found for %s', array.name)
+        return array
+    data_vars = { vn: unnormalize_array(v) for vn, v in values.data_vars.items() }
+    return xa.Dataset( data_vars, coords=values.coords, attrs=values.attrs )

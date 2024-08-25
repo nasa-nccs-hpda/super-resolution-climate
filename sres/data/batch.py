@@ -6,10 +6,10 @@ from datetime import datetime, timedelta
 from sres.base.util.dates import TimeType
 from sres.data.tiles import TileGrid
 from sres.base.util.logging import lgm
-from sres.base.util.model  import normalize as dsnorm
+from sres.base.util.ops  import normalize as dsnorm
 from sres.base.util.ops import format_timedeltas
 from typing import List, Tuple, Union, Dict, Any, Sequence, Optional
-from sres.base.util.model import dataset_to_stacked
+from sres.base.util.ops import dataset_to_stacked
 from sres.base.io.loader import batches_date_range, nbatches, batchDomain
 from sres.controller.config import TSet, srRes
 from sres.base.source.batch import SRBatch
