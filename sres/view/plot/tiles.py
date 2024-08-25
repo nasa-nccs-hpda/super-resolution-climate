@@ -55,7 +55,6 @@ class ResultTilePlot(Plot):
 		self.tset: TSet = tset
 		self.time_index: int = kwargs.get( 'time_id', 0 )
 		self.tile_index: int = kwargs.get( 'tile_id', 0 )
-		self.tile_grid: TileSelectionGrid = TileSelectionGrid(trainer.get_sample_target())
 		self.tileId: int = kwargs.get( 'tile_id', 0 )
 		self.channel: str = kwargs.get( 'channel', trainer.target_variables[0] )
 		self.splabels = [['input', self.upscale_plot_label], ['target', self.result_plot_label]]
@@ -63,6 +62,7 @@ class ResultTilePlot(Plot):
 		self.images_data: Dict[str, xa.DataArray] = eval_results
 		self.losses: Dict[str, float] = eval_losses
 		assert len(self.losses) > 0, "Aborting ResultPlot: Failed evaluation"
+		self.tile_grid: TileSelectionGrid = TileSelectionGrid(trainer.get_sample_target())
 		self.tile_grid.create_tile_recs(**kwargs)
 		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.trainer.data_timestamps[tset]) )
 		self.sslider: StepSlider = StepSlider('Tile:', self.tile_index, self.sample_input.sizes['tiles'] )
