@@ -391,7 +391,7 @@ class ModelTrainer(object):
 				xyf = batch_data.attrs.get('xyflip', 0)
 				lgm().log(f" **  ** <{self.model_manager.model_name}:{tset.name}> BATCH[{ibatch:3}]{batch_data.shape} TIME[{itime:3}:{ctime:4}] TILES{list(ctile.values())}[F{xyf}]-> Loss= {batch_model_losses[-1]*1000:5.1f} ({interp_sloss*1000:5.1f})", display=True )
 				ibatch = ibatch + 1
-				batches.append( dict(input=denorm(binput,batch_data.attrs), target=denorm(btarget,batch_data.attrs), interp=denorm(binterp,batch_data.attrs), output=denorm(boutput,batch_data.attrs)) )
+				batches.append( dict(input=denorm(binput,batch_data.attrs), target=denorm(btarget,batch_data.attrs), interp=denorm(binterp,batch_data.attrs), model=denorm(boutput,batch_data.attrs)) )
 
 		images, losses = {}, {}
 		for ivar, vname in enumerate(output_vars):
@@ -499,7 +499,7 @@ class ModelTrainer(object):
 				self.validation_loss = model_loss
 		lgm().log(f' -------> Exec {tset.value} model with {ntotal_params} wts on {tset.value} tset took {proc_time:.2f} sec, model loss = {model_loss:.4f}')
 		losses = dict( model=model_loss, interp=np.array(batch_interp_losses).mean() )
-		results = dict( input=self.get_ml_input(tset), target=self.get_ml_target(tset), product=self.get_ml_product(tset), interp=self.get_ml_interp(tset) )
+		results = dict( input=self.get_ml_input(tset), target=self.get_ml_target(tset), model=self.get_ml_product(tset), interp=self.get_ml_interp(tset) )
 		return  results, losses
 
 	def apply_network(self, target_data: xa.DataArray ) -> Tuple[Tensor,TensorOrTensors,Tensor]:
