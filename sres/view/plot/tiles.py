@@ -55,14 +55,15 @@ class ResultTilePlot(Plot):
 		self.tset: TSet = tset
 		self.time_index: int = kwargs.get( 'time_id', 0 )
 		self.tile_index: int = kwargs.get( 'tile_id', 0 )
-		self.losses: Dict[str,float] = self.trainer.evaluate(self.tset, tile_index=self.tile_index, time_index=self.time_index, interp_loss=True, **kwargs)
 		assert len(self.losses) > 0, "Aborting ResultPlot: Failed evaluation"
 		self.tile_grid: TileSelectionGrid = TileSelectionGrid(trainer.get_sample_target())
 		self.tile_grid.create_tile_recs(**kwargs)
 		self.tileId: int = kwargs.get( 'tile_id', 0 )
 		self.channel: str = kwargs.get( 'channel', trainer.target_variables[0] )
 		self.splabels = [['input', self.upscale_plot_label], ['target', self.result_plot_label]]
-		self.images_data: Dict[str, xa.DataArray] = self.update_tile_data(update_model=True)
+		eval_results, eval_losses = self.update_tile_data(update_model=True)
+		self.images_data: Dict[str, xa.DataArray] = eval_results
+		self.losses: Dict[str, float] = eval_losses
 		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.trainer.data_timestamps[tset]) )
 		self.sslider: StepSlider = StepSlider('Tile:', self.tile_index, self.sample_input.sizes['tiles'] )
 		self.plot_titles: List[List[str]] = [ ['input', 'target'], ['interp', 'model'] ]
@@ -93,20 +94,12 @@ class ResultTilePlot(Plot):
 	def batch_domain(self) -> batchDomain:
 		return self.trainer.batch_domain
 
-	def update_tile_data( self, **kwargs ) -> Dict[str, xa.DataArray]:
+	def update_tile_data( self, **kwargs ) -> Tuple[Dict[str,xa.DataArray],Dict[str,float]]:
 		self.tile_index = self.tileId
-		eval_losses = self.trainer.evaluate( self.tset, tile_index=self.tile_index, time_index=self.time_index, interp_loss=True, **kwargs )
+		eval_results, eval_losses = self.trainer.evaluate( self.tset, tile_index=self.tile_index, time_index=self.time_index, interp_loss=True, save_checkpoint=False, **kwargs )
 		if len( eval_losses ) > 0:
 			self.losses = eval_losses
-			model_input: xa.DataArray = self.trainer.get_ml_input(self.tset)
-			target: xa.DataArray = self.trainer.get_ml_target(self.tset)
-			prediction: xa.DataArray =  self.trainer.get_ml_product(self.tset)
-			interpolated: xa.DataArray =  self.trainer.get_ml_interp(self.tset)
-			lgm().log( f"update_tile_data{self.tile_index}: prediction{prediction.shape}, target{target.shape}, input{model_input.shape}, interp{interpolated.shape}", display=True)
-			images_data: Dict[str, xa.DataArray] = dict(interpolated=interpolated, input=model_input, target=target)
-			images_data[self.result_plot_label] = prediction
-			lgm().log(f"update_tile_data ---> images = {list(images_data.keys())}")
-			return images_data
+			return eval_results, eval_losses
 
 	def select_point(self,event):
 		lgm().log(f'Mouse click: button={event.button}, dbl={event.dblclick}, x={event.xdata:.2f}, y={event.ydata:.2f}')

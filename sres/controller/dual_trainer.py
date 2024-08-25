@@ -331,7 +331,7 @@ class ModelTrainer(object):
 		return self.current_losses
 
 	def record_eval(self, epoch: int, losses: Dict[TSet,float], tset: TSet, **kwargs ):
-		eval_losses = self.evaluate( tset, update_model=False, **kwargs )
+		eval_results, eval_losses = self.evaluate( tset, update_model=False, **kwargs )
 		if len(eval_losses) > 0:
 			if self.results_accum is not None:
 				print( f" --->> record {tset.name} eval[{epoch}]: eval_losses={eval_losses}, losses={losses}")
@@ -446,6 +446,7 @@ class ModelTrainer(object):
 		torch.cuda.manual_seed(seed)
 		self.time_index = kwargs.get('time_index', self.time_index)
 		self.tile_index = kwargs.get('tile_index', self.tile_index)
+		save_checkpoint = kwargs.get('save_checkpoint', True)
 		train_state = self.checkpoint_manager.load_checkpoint( TSet.Validation, **kwargs )
 		if train_state is None:
 			print( "Error loading checkpoint file, skipping evaluation.")
@@ -492,7 +493,7 @@ class ModelTrainer(object):
 		ntotal_params: int = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
 		if tset == TSet.Validation:
 			if (model_loss < self.validation_loss) or (self.validation_loss == 0.0):
-				if self.validation_loss > 0.0:
+				if (self.validation_loss > 0.0) and save_checkpoint:
 					interp_loss: float = np.array(batch_interp_losses).mean()
 					self.checkpoint_manager.save_checkpoint( epoch, 0, TSet.Validation, model_loss, interp_loss )
 				self.validation_loss = model_loss
