@@ -1,9 +1,9 @@
-import os
 import time
 import xarray as xa
 from sres.base.util.config import ConfigContext, cfg, config
 from sres.controller.dual_trainer import ModelTrainer
 from sres.base.util.logging import lgm, exception_handled, log_timing
+from sres.data.inference import save_inference_results, load_inference_results
 from sres.base.gpu import save_memory_snapshot
 from sres.base.io.loader import TSet, srRes
 from typing import Any, Dict, List, Tuple
@@ -41,18 +41,8 @@ class WorkflowController(object):
 	def inference(self, timestep: int,  **kwargs)-> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
 			images_data, eval_losses = self.trainer.process_image(TSet.Validation, timestep, interp_loss=True, update_model=True, **kwargs)
 			if kwargs.get('save', True):
-				self.save_results(images_data, eval_losses)
+				save_inference_results(images_data, eval_losses)
 			return images_data, eval_losses
-
-	def save_results(self, inference_data: Dict[str,Dict[str,xa.DataArray]], inference_losses: Dict[str,Dict[str,float]] ):
-		for vname in inference_data.keys():
-			var_results: Dict[str,xa.DataArray] = inference_data[vname]
-			var_losses: Dict[str,float] =  inference_losses[vname]
-			dset = xa.Dataset(data_vars=var_results, attrs=var_losses)
-			results_path = f"{cfg().platform.results}/inference/{config()['dataset']}/{config()['task']}/{vname}.nc"
-			os.makedirs( os.path.dirname(results_path), exist_ok=True )
-			print( f"Saving inference results to: {results_path}")
-			dset.to_netcdf( results_path, "w")
 
 	def initialize(self, cname, model, **kwargs ):
 		self.model = model
