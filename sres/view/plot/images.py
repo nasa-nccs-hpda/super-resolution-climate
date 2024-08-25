@@ -10,7 +10,7 @@ from matplotlib.axes import Axes
 from matplotlib.image import AxesImage
 from xarray.core.coordinates import DataArrayCoordinates
 from sres.controller.dual_trainer import ModelTrainer
-from sres.base.util.config import TSet
+from sres.controller.config import TSet
 from sres.view.tile_selection_grid import TileSelectionGrid
 from sres.view.plot.widgets import StepSlider
 from sres.base.util.logging import lgm, exception_handled
