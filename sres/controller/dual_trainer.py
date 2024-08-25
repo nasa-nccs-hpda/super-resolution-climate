@@ -391,7 +391,7 @@ class ModelTrainer(object):
 				xyf = batch_data.attrs.get('xyflip', 0)
 				lgm().log(f" **  ** <{self.model_manager.model_name}:{tset.name}> BATCH[{ibatch:3}]{batch_data.shape} TIME[{itime:3}:{ctime:4}] TILES{list(ctile.values())}[F{xyf}]-> Loss= {batch_model_losses[-1]*1000:5.1f} ({interp_sloss*1000:5.1f})", display=True )
 				ibatch = ibatch + 1
-				batches.append( dict(input=denorm(binput,batch_data.attrs), target=denorm(btarget,batch_data.attrs), interp=denorm(binterp,batch_data.attrs), model=denorm(boutput,batch_data.attrs)) )
+				batches.append( dict(input=denorm(binput,batch_data.attrs), target=denorm(btarget,batch_data.attrs), interpolated=denorm(binterp,batch_data.attrs), model=denorm(boutput,batch_data.attrs)) )
 
 		images, losses = {}, {}
 		for ivar, vname in enumerate(output_vars):
@@ -402,7 +402,7 @@ class ModelTrainer(object):
 			model_loss: float = np.array(batch_model_losses).mean()
 			ntotal_params: int = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
 			lgm().log(f' -------> Exec {tset.value} model with {ntotal_params} wts on {tset.value} tset took {proc_time:.2f} sec, model loss = {model_loss:.4f}')
-			losses[vname] = dict( model=model_loss, interp=np.array(batch_interp_losses).mean() )
+			losses[vname] = dict( model=model_loss, interpolated=np.array(batch_interp_losses).mean() )
 		return images, losses
 
 	def assemble_images(self, batches: List[Dict[str,np.ndarray]], ivar: int, tile_ids: np.ndarray, grid_shape: Dict[str, int] ) -> Dict[str,xa.DataArray]:
@@ -498,8 +498,8 @@ class ModelTrainer(object):
 					self.checkpoint_manager.save_checkpoint( epoch, 0, TSet.Validation, model_loss, interp_loss )
 				self.validation_loss = model_loss
 		lgm().log(f' -------> Exec {tset.value} model with {ntotal_params} wts on {tset.value} tset took {proc_time:.2f} sec, model loss = {model_loss:.4f}')
-		losses = dict( model=model_loss, interp=np.array(batch_interp_losses).mean() )
-		results = dict( input=self.get_ml_input(tset), target=self.get_ml_target(tset), model=self.get_ml_product(tset), interp=self.get_ml_interp(tset) )
+		losses = dict( model=model_loss, interpolated=np.array(batch_interp_losses).mean() )
+		results = dict( input=self.get_ml_input(tset), target=self.get_ml_target(tset), model=self.get_ml_product(tset), interpolated=self.get_ml_interp(tset) )
 		return  results, losses
 
 	def apply_network(self, target_data: xa.DataArray ) -> Tuple[Tensor,TensorOrTensors,Tensor]:
