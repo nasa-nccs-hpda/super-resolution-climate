@@ -38,11 +38,8 @@ class WorkflowController(object):
 
 				lgm().log(f"Completed training model: {model}")
 
-	def inference(self, model: str, timestep: int, config: Dict, **kwargs)-> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
-		with ConfigContext(self.cname, model=model, **config) as cc:
-			self.config = cc
-			self.trainer = ModelTrainer(cc)
-			images_data, eval_losses = self.trainer.process_image(TSet.Validation, timestep, interp_loss=True, **kwargs)
+	def inference(self, timestep: int,  **kwargs)-> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
+			images_data, eval_losses = self.trainer.process_image(TSet.Validation, timestep, interp_loss=True, update_model=True, **kwargs)
 			if kwargs.get('save', True):
 				self.save_results(images_data, eval_losses)
 			return images_data, eval_losses
