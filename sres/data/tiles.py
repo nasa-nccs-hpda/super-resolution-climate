@@ -1,7 +1,7 @@
 import math, random, numpy as np
 from typing import Dict, Tuple, List, Optional
 from sres.base.io.loader import batchDomain
-from base.controller.config import TSet
+from sres.controller.config import TSet
 from sres.base.util.config import cfg
 from sres.base.util.logging import lgm, log_timing
 

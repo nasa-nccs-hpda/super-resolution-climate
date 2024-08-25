@@ -2,7 +2,7 @@ import torch, numpy as np
 import xarray as xa
 from typing  import List, Tuple, Optional, Dict
 from sres.base.io.loader import batchDomain
-from base.controller.config import TSet, srRes
+from sres.controller.config import TSet, srRes
 from sres.base.util.config import cfg
 from sres.base.util.array import array2tensor, downsample, upsample, xa_downsample, xa_upsample
 import ipywidgets as ipw

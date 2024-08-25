@@ -4,7 +4,7 @@ from datetime import date
 from sres.base.util.dates import drepr, date_list
 from nvidia.dali import fn
 from enum import Enum
-from base.controller.config import TSet, srRes
+from sres.controller.config import TSet, srRes
 from sres.base.util.config import get_data_indices, get_roi, get_dims
 from sres.controller.stats import StatsAccumulator, StatsEntry
 from typing import Any, Mapping, Sequence, Tuple, Union, List, Dict, Literal, Optional

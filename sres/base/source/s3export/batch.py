@@ -6,7 +6,7 @@ from omegaconf import DictConfig, OmegaConf
 from sres.base.util.dates import drepr, date_list
 from nvidia.dali import fn
 from enum import Enum
-from base.controller.config import TSet, srRes
+from sres.controller.config import TSet, srRes
 from glob import glob
 from typing import Any, Mapping, Sequence, Tuple, Union, List, Dict, Literal, Optional
 from sres.base.util.ops import format_timedeltas

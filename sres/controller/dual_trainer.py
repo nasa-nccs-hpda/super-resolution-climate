@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Tuple, Union, Sequence, Optional
 from sres.base.util.config import ConfigContext, cfg
 from sres.data.tiles import TileIterator
 from sres.base.io.loader import batchDomain
-from base.controller.config import TSet, srRes
+from sres.controller.config import TSet, srRes
 from sres.base.util.config import cdelta, cfg, cval, get_data_coords, dateindex
 from sres.base.gpu import set_device
 from sres.base.util.array import array2tensor, downsample, upsample

@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Tuple, Type, Optional, Union
 from sres.controller.workflow import WorkflowController
 from sres.base.io.loader import ncFormat
-from base.controller.config import TSet
+from sres.controller.config import TSet
 
 cname = "sres"
 model =  'rcan-10-20-64'

@@ -11,7 +11,7 @@ from datetime import datetime, date
 from sres.base.util.logging import lgm, log_timing
 from sres.base.util.config import cfg
 from sres.base.io.loader import ncFormat, batchDomain
-from base.controller.config import TSet, srRes
+from sres.controller.config import TSet, srRes
 
 _SEC_PER_HOUR = 3600
 _HOUR_PER_DAY = 24

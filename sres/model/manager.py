@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Tuple, Type, Optional, Union, Sequence, Mapp
 from omegaconf import DictConfig
 import importlib, pandas as pd
 from datetime import datetime
-from base.controller.config import TSet, srRes
+from sres.controller.config import TSet, srRes
 from sres.base.util.array import xa_downsample
 from sres.data.batch import BatchDataset
 from collections.abc import Iterable
