@@ -9,7 +9,7 @@ cname: str = "sres"
 model: str = 'rcan-10-20-64'
 ccustom: Dict[str,Any] = { 'task.data_downsample': 1 }
 timestep: int = 0
-data_structure: ResultStructure = ResultStructure.Tiles
+data_structure: ResultStructure = ResultStructure.Image
 
 configuration = dict(
 	task = "SST-tiles-48",
@@ -28,7 +28,7 @@ for vname in inference_data.keys():
 	print( f" * Variable {vname}:")
 	var_data: Dict[str, xa.DataArray] = inference_data[vname]
 	for dtype, darray in var_data.items():
-		print( f"   -> {dtype}: array{darray.dims}{darray.shape}")
+		print( f"   -> {dtype+':':<10} array{darray.dims}{darray.shape}")
 
 
 
