@@ -6,7 +6,7 @@ cname: str = "sres"
 model: str = 'rcan-10-20-64'
 ccustom: Dict[str,Any] = { 'task.data_downsample': 1 }
 timestep: int = 0
-data_structure: ResultStructure = ResultStructure.Image
+data_structure: ResultStructure = ResultStructure.Tiles
 
 configuration = dict(
 	task = "SST-tiles-48",
