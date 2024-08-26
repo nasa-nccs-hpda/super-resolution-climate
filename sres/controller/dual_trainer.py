@@ -2,6 +2,7 @@ import torch, math
 import xarray, traceback, random
 from datetime import datetime
 from torch import Tensor
+from sres.base.gpu import set_device, get_device
 from typing import Any, Dict, List, Tuple, Union, Sequence, Optional
 from sres.base.util.config import ConfigContext, cfg
 from sres.data.tiles import TileIterator
@@ -191,15 +192,19 @@ class ModelTrainer(object):
 		error = torch.sqrt( ((prd - tar) ** 2) + self.eps )
 		return torch.mean(error)
 
-	def single_product_loss(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
+	def overlay(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
 		for dim in [-1,-2]:
 			if prd.shape[dim] < tar.shape[dim]:
-				tar = torch.index_select(tar, dim, torch.tensor([0,prd.shape[dim]]))
+				bounds = torch.tensor([0,prd.shape[dim]], device=get_device())
+				tar = torch.index_select( tar, dim, bounds )
+		return  tar
+
+	def single_product_loss(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
 		if cfg().model.loss_fn == 'l2':
 		#	print( f"LOSS: prd{list(prd.shape)}.mean={prd.mean()}, tar{list(tar.shape)}.mean={tar.mean()}")
-			loss = l2loss(prd, tar)
+			loss = l2loss(prd, self.overlay(prd, tar) )
 		elif cfg().model.loss_fn == "charbonnier":
-			loss = self.charbonnier(prd, tar)
+			loss = self.charbonnier(prd, self.overlay(prd, tar) )
 		else:
 			raise Exception("Unknown single-product loss function {}".format(cfg().model.loss_fn))
 		return loss
