@@ -192,6 +192,9 @@ class ModelTrainer(object):
 		return torch.mean(error)
 
 	def single_product_loss(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
+		for dim in [-1,-2]:
+			if prd.shape[dim] < tar.shape[dim]:
+				tar = torch.index_select(tar, dim, torch.tensor([0,prd.shape[dim]]))
 		if cfg().model.loss_fn == 'l2':
 		#	print( f"LOSS: prd{list(prd.shape)}.mean={prd.mean()}, tar{list(tar.shape)}.mean={tar.mean()}")
 			loss = l2loss(prd, tar)
