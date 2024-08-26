@@ -196,18 +196,16 @@ class ModelTrainer(object):
 		if len(tar.shape) < 2 or len(prd.shape) < 2:
 			raise ValueError("Input tensors must have at least 2 dimensions")
 
-		ndim = len(tar.shape)
-		print(f"OVERLAY: prd{list(prd.shape)}, tar{list(tar.shape)}")
-
+		ndim, ps, ts = len(tar.shape), list(prd.shape), list(tar.shape)
 		for dim in [ndim - 1, ndim - 2]:
 			if prd.shape[dim] < tar.shape[dim]:
 				bounds = torch.tensor([0, prd.shape[dim]], device=get_device())
 				tar = torch.index_select(tar, dim, bounds)
+		print(f"OVERLAY: prd{list(prd.shape)}, tar{list(tar.shape)} -> {list(tar.shape)}")
 		return tar
 
 	def single_product_loss(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
 		if cfg().model.loss_fn == 'l2':
-		#	print( f"LOSS: prd{list(prd.shape)}.mean={prd.mean()}, tar{list(tar.shape)}.mean={tar.mean()}")
 			loss = l2loss(prd, self.overlay(prd, tar) )
 		elif cfg().model.loss_fn == "charbonnier":
 			loss = self.charbonnier(prd, self.overlay(prd, tar) )
