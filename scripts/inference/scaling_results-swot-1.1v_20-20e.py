@@ -9,8 +9,8 @@ eval_losses: Dict[str,Dict[str,float]]
 
 cname: str = "sres"
 model: str = 'rcan-10-20-64'
-nts: int = 10
-downsample_values = [ 1.1, 1.2, 1.3, 1.5, 2.0, 2.5, 3.0 ]
+nts: int = 2
+downsample_values = [ 1.1, 1.2] # 1.3, 1.5, 2.0, 2.5, 3.0 ]
 data_structure: ResultStructure = ResultStructure.Image
 
 configuration = dict(
