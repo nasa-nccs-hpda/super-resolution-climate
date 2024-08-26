@@ -6,16 +6,22 @@ from sres.base.util.logging import lgm, exception_handled, log_timing
 from sres.controller.config import TSet, ResultStructure
 from typing import Any, Dict, List, Tuple
 
+def results_path(varname: str, data_structure: ResultStructure):
+	downsample_factor = float(cfg().task.data_downsample)
+	dss = "" if (downsample_factor == 1.0) else f"_ds-{downsample_factor:.2f}"
+	results_path = f"{cfg().platform.results}/inference/{config()['dataset']}/{config()['task']}/{varname}.{data_structure.value}{dss}.nc"
+	os.makedirs(os.path.dirname(results_path), exist_ok=True)
+	return results_path
+
 def save_inference_results( varname: str, data_structure: ResultStructure, var_results: Dict[str ,xa.DataArray], var_losses: Dict[str ,float] ):
 	dset = xa.Dataset(data_vars=var_results, attrs=var_losses)
-	results_path = f"{cfg().platform.results}/inference/{config()['dataset']}/{config()['task']}/{varname}.{data_structure.value}.nc"
-	os.makedirs( os.path.dirname(results_path), exist_ok=True )
-	print( f"Saving inference results to: {results_path}")
-	dset.to_netcdf( results_path, "w")
+	rpath = results_path(varname, data_structure)
+	print(f"Saving inference results to: {rpath}")
+	dset.to_netcdf( results_path(), "w")
 
 def load_inference_results( varname: str, data_structure: ResultStructure ) -> xa.Dataset:
-	results_path = f"{cfg().platform.results}/inference/{config()['dataset']}/{config()['task']}/{varname}.{data_structure.value}.nc"
-	dset: xa.Dataset = xa.open_dataset( results_path )
-	print(f"Loading inference results from: {results_path}")
+	rpath = results_path(varname, data_structure)
+	dset: xa.Dataset = xa.open_dataset( rpath )
+	print(f"Loading inference results from: {rpath}")
 	dset.attrs['varname'] = varname
 	return dset
