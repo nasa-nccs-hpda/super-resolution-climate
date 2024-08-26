@@ -145,15 +145,15 @@ class ResultImagePlot(Plot):
 		ptype: str = self.plot_titles[iplot]
 		image: xa.DataArray = self.images_data[ptype]
 		vrange = [np.nanmin(image.values), np.nanmax(image.values)]
-		print( f"subplot_image[{ptype}]: image{image.dims}{image.shape}, vrange={vrange}")
-		iplot: AxesImage =  image.plot.imshow(ax=ax, x="x", y="y", cmap='jet', yincrease=True, add_colorbar=True ) #, vmin=vrange[0], vmax=vrange[1] )
+		lgm().log( f"subplot_image[{ptype}]: image{image.dims}{image.shape}, vrange={vrange}")
+		axImage: AxesImage =  image.plot.imshow(ax=ax, x="x", y="y", cmap='jet', yincrease=True, add_colorbar=True ) #, vmin=vrange[0], vmax=vrange[1] )
 		ax.set_title( self.get_subplot_title(ptype) )
-		self.ims[ iplot ] = iplot
+		self.ims[ iplot ] = axImage
 
 	def update_subplot(self, iplot: int):
 		ptype: str = self.plot_titles[iplot]
 		image: xa.DataArray = self.images_data[ptype]
-		lgm().log( f" >> update_subplot_image[{ptype}]: image{image.dims}{image.shape}")
+		lgm().log( f" >> update_subplot_image[{ptype}]: image{image.dims}{image.shape}, ims: {list(self.ims.keys())}")
 		self.ims[iplot].set_data(image.values)
 		self.ims[iplot].changed()
 		self.ims[iplot].stale = True
