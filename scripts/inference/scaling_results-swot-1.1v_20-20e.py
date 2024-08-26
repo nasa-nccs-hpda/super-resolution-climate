@@ -23,7 +23,7 @@ configuration = dict(
 controller = WorkflowController( cname, configuration, interp_loss=True )
 downsample_results = {}
 for data_downsample in downsample_values:
-	ccustom: Dict[str,Any] = { 'task.data_downsample': data_downsample }
+	ccustom: Dict[str,Any] = { 'task.data_downsample': data_downsample, 'task.xyflip': False }
 	with ConfigContext( cname, model=model, **ccustom) as cc:
 		controller.init_context( cc, model )
 		loss_pct = []
