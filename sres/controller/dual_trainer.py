@@ -303,7 +303,7 @@ class ModelTrainer(object):
 						tile_iter.register_loss('interp', interp_sloss)
 					stile = list(ctile.values())
 					xyf = batch_data.attrs.get('xyflip',0)
-					lgm().log(f" ** <{self.model_manager.model_name}> E({epoch:3}/{nepochs}) TIME[{itime:3}:{ctime:4}] TILES[{stile[0]:4}:{stile[1]:4}][F{xyf}]-> Loss= {sloss*1000:6.2f} ({interp_sloss*1000:6.2f})", display=True)
+					lgm().log(f" ** <{self.model_manager.model_name}> E({epoch:3}/{nepochs}) TIME[{itime:3}:{ctime:4}] TILES[{stile[0]:4}:{stile[1]:4}][F{xyf}]-> Loss= {sloss*1000:6.2f} ({interp_sloss*1000:6.2f}): {(sloss/interp_sloss)*100:.2f}%", display=True)
 					mloss.backward()
 					self.optimizer.step()
 
@@ -389,7 +389,8 @@ class ModelTrainer(object):
 				[interp_sloss, interp_multilevel_mloss] = self.loss(binterp,btarget)
 				batch_interp_losses.append( interp_sloss )
 				xyf = batch_data.attrs.get('xyflip', 0)
-				lgm().log(f" **  ** <{self.model_manager.model_name}:{tset.name}> BATCH[{ibatch:3}]{batch_data.shape} TIME[{itime:3}:{ctime:4}] TILES{list(ctile.values())}[F{xyf}]-> Loss= {batch_model_losses[-1]*1000:5.1f} ({interp_sloss*1000:5.1f})", display=True )
+				sloss = batch_model_losses[-1]
+				lgm().log(f" **  ** <{self.model_manager.model_name}:{tset.name}> BATCH[{ibatch:3}]{batch_data.shape} TIME[{itime:3}:{ctime:4}] TILES{list(ctile.values())}[F{xyf}]-> Loss= {sloss*1000:5.1f} ({interp_sloss*1000:5.1f}): {(sloss/interp_sloss)*100:.2f}%", display=True )
 				ibatch = ibatch + 1
 				batches.append( dict(input=denorm(binput,batch_data.attrs), target=denorm(btarget,batch_data.attrs), interpolated=denorm(binterp,batch_data.attrs), model=denorm(boutput,batch_data.attrs)) )
 
@@ -476,7 +477,8 @@ class ModelTrainer(object):
 						[interp_sloss, interp_multilevel_mloss] = self.loss(binterp,btarget)
 						batch_interp_losses.append( interp_sloss )
 						xyf = batch_data.attrs.get('xyflip', 0)
-						lgm().log(f" **  ** <{self.model_manager.model_name}:{tset.name}> BATCH[{ibatch:3}] TIME[{itime:3}:{ctime:4}] TILES{list(ctile.values())}[F{xyf}]-> Loss= {batch_model_losses[-1]*1000:5.1f} ({interp_sloss*1000:5.1f})", display=True )
+						sloss = batch_model_losses[-1]
+						lgm().log(f" **  ** <{self.model_manager.model_name}:{tset.name}> BATCH[{ibatch:3}] TIME[{itime:3}:{ctime:4}] TILES{list(ctile.values())}[F{xyf}]-> Loss= {sloss:5.1f} ({interp_sloss*1000:5.1f}): {(sloss/interp_sloss)*100:.2f}%", display=True )
 						ibatch = ibatch + 1
 						if self.tile_index >= 0: break
 				if self.time_index >= 0: break
