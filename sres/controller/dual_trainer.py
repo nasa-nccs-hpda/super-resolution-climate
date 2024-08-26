@@ -194,7 +194,9 @@ class ModelTrainer(object):
 
 	def conform_to_product(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
 		if (prd.shape[2] < tar.shape[2]) or (prd.shape[3] < tar.shape[3]):
+			print( f"conform_to_product: {list(prd.shape)}, {list(tar.shape)}")
 			tar = tar[:,:,:prd.shape[2],:prd.shape[3]]
+			print(f" --->  {list(tar.shape)}")
 		return tar
 
 	def single_product_loss(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
