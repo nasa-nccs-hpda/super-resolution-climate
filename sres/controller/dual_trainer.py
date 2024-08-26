@@ -193,15 +193,8 @@ class ModelTrainer(object):
 		return torch.mean(error)
 
 	def conform_to_product(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
-		ndim, ps, ts = len(tar.shape), list(prd.shape), list(tar.shape)
-		print(f"OVERLAY(ds={cfg().task.data_downsample}): prd{ps}, tar{ts}")
-		tar = tar
-		for dim in [ndim - 1, ndim - 2]:
-			if prd.shape[dim] < tar.shape[dim]:
-				bounds =[0, prd.shape[dim]]
-				tar = torch.index_select( tar, dim,  torch.tensor( bounds, device=get_device()) )
-				print(f" --> dim={dim}, bounds={bounds}: tar{list(tar.shape)}")
-		print(f" --> conformed tar{list(tar.shape)}")
+		if (prd.shape[2] < tar.shape[2]) or (prd.shape[3] < tar.shape[3]):
+			tar = tar[:,:,:prd.shape[2]+1,:prd.shape[3]+1]
 		return tar
 
 	def single_product_loss(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
