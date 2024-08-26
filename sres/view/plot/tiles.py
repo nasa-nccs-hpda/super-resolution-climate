@@ -5,12 +5,13 @@ from sres.base.io.loader import batchDomain
 from sres.controller.config import TSet, srRes
 from sres.base.util.config import cfg
 from sres.base.util.array import array2tensor, downsample, upsample, xa_downsample, xa_upsample
+from sres.data.inference import load_inference_results
 import ipywidgets as ipw
 from matplotlib.axes import Axes
 from matplotlib.image import AxesImage
 from xarray.core.coordinates import DataArrayCoordinates
 from sres.controller.dual_trainer import ModelTrainer
-from sres.controller.config import TSet
+from sres.controller.config import TSet, ResultStructure
 from sres.view.tile_selection_grid import TileSelectionGrid
 from sres.view.plot.widgets import StepSlider
 from sres.base.util.logging import lgm, exception_handled
@@ -55,6 +56,7 @@ class ResultTilePlot(Plot):
 		self.tset: TSet = tset
 		self.time_index: int = kwargs.get( 'time_id', 0 )
 		self.tile_index: int = kwargs.get( 'tile_id', 0 )
+		self.run_inference: int = kwargs.get('run_inference', True)
 		self.tileId: int = kwargs.get( 'tile_id', 0 )
 		self.channel: str = kwargs.get( 'channel', trainer.target_variables[0] )
 		self.splabels = [['input', self.upscale_plot_label], ['target', self.result_plot_label]]
@@ -96,7 +98,8 @@ class ResultTilePlot(Plot):
 
 	def update_tile_data( self, **kwargs ) -> Tuple[Dict[str,xa.DataArray],Dict[str,float]]:
 		self.tile_index = self.tileId
-		eval_results, eval_losses = self.trainer.evaluate( self.tset, tile_index=self.tile_index, time_index=self.time_index, interp_loss=True, save_checkpoint=False, **kwargs )
+		if self.run_inference:  eval_results, eval_losses = self.trainer.evaluate(self.tset, tile_index=self.tile_index,  time_index=self.time_index, interp_loss=True, save_checkpoint=False, **kwargs)
+		else:                   eval_results, eval_losses = load_inference_results( self.channel, ResultStructure.Tiles )
 		if len( eval_losses ) > 0:
 			self.losses = eval_losses
 			return eval_results, eval_losses
