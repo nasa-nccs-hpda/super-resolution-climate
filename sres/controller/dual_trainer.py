@@ -201,7 +201,7 @@ class ModelTrainer(object):
 			if prd.shape[dim] < tar.shape[dim]:
 				bounds = torch.tensor([0, prd.shape[dim]], device=get_device())
 				tar = torch.index_select(tar, dim, bounds)
-		print(f"OVERLAY: prd{list(prd.shape)}, tar{list(tar.shape)} -> {list(tar.shape)}")
+		print(f"OVERLAY(ds={cfg().task.data_downsample}): prd{list(prd.shape)}, tar{list(tar.shape)} -> {list(tar.shape)}")
 		return tar
 
 	def single_product_loss(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
