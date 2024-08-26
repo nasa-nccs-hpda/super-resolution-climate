@@ -50,13 +50,13 @@ def to_xa( template: xa.DataArray, data: np.ndarray ) -> xa.DataArray:
 	return template.copy(data=data.reshape(template.shape))
 
 class ResultImagePlot(Plot):
-	def __init__(self, trainer: ModelTrainer, tset: TSet, **kwargs):
+	def __init__(self, trainer: ModelTrainer, tset: TSet, varname: str, **kwargs):
 		super(ResultImagePlot, self).__init__(trainer, **kwargs)
 		self.tset: TSet = tset
 		self.time_index: int = kwargs.get( 'time_id', 0 )
 		self.losses = None
+		self.varname = varname
 		self.tileId: int = kwargs.get( 'tile_id', 0 )
-		self.varId: int = kwargs.get( 'var_id', 0 )
 		eval_results, eval_losses = self.update_tile_data(update_model=True)
 		self.images_data: Dict[str, xa.DataArray] = eval_results
 		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.trainer.data_timestamps[tset]) )
@@ -86,12 +86,12 @@ class ResultImagePlot(Plot):
 	def batch_domain(self) -> batchDomain:
 		return self.trainer.batch_domain
 
-	def update_tile_data( self, **kwargs ) -> Dict[str, xa.DataArray]:
-		images_data, eval_losses = self.trainer.process_image( self.tset,  self.time_index, interp_loss=True, var=self.varId, **kwargs )
+	def update_tile_data( self, **kwargs ) -> Tuple[Dict[str, xa.DataArray],Dict[str,float]]:
+		images_data, eval_losses = self.trainer.process_image( self.tset,  self.time_index, interp_loss=True, **kwargs )
 		if len( eval_losses ) > 0:
-			self.losses = eval_losses
-			lgm().log(f"update_tile_data ---> images = {list(images_data.keys())}")
-			return list(images_data.values())[0]
+			self.losses = eval_losses[self.varname]
+			lgm().log(f"update_tile_data({self.varname}), time_index={self.time_index} ---> images = {list(images_data[self.varname].keys())}")
+			return images_data[self.varname], self.losses
 
 	def select_point(self,event):
 		lgm().log(f'Mouse click: button={event.button}, dbl={event.dblclick}, x={event.xdata:.2f}, y={event.ydata:.2f}')

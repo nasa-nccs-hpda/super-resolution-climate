@@ -71,8 +71,8 @@ class WorkflowController(object):
 		self.plot = ResultTilePlot( self.trainer, tset, **kwargs)
 		return self.plot.plot()
 
-	def get_result_image_view(self, tset: TSet, **kwargs):
-		self.plot = ResultImagePlot( self.trainer, tset, **kwargs)
+	def get_result_image_view(self, tset: TSet, varname: str, **kwargs):
+		self.plot = ResultImagePlot( self.trainer, tset, varname, **kwargs)
 		return self.plot.plot()
 
 	def get_training_view(self, **kwargs):
