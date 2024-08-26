@@ -383,7 +383,7 @@ class ModelTrainer(object):
 			binput, boutput, btarget = self.apply_network( batch_data )
 			if binput is not None:
 				binterp = upsample(binput)
-				lgm().log(f"  ->apply_network: inp{ts(binput)} target{ts(btarget)} prd{ts(boutput)} interp{ts(binterp)}" )
+				lgm().log(f"  ->apply_network: inp{ts(binput)} target{ts(btarget)} prd{ts(boutput)} interp{ts(binterp)}", display=True )
 				[model_sloss, model_multilevel_loss] = self.loss(boutput, btarget)
 				batch_model_losses.append( model_sloss )
 				[interp_sloss, interp_multilevel_mloss] = self.loss(binterp,btarget)
