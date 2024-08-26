@@ -67,6 +67,11 @@ class WorkflowController(object):
 		self.config = ConfigContext.activate_global( cname, model=model, **kwargs )
 		self.trainer = ModelTrainer( self.config )
 
+	def init_context(self, cc: ConfigContext, model: str ):
+		self.model = model
+		self.config = cc
+		self.trainer = ModelTrainer( self.config )
+
 	def get_result_tile_view(self, tset: TSet, **kwargs):
 		self.plot = ResultTilePlot( self.trainer, tset, **kwargs)
 		return self.plot.plot()

@@ -192,7 +192,7 @@ class ModelTrainer(object):
 		error = torch.sqrt( ((prd - tar) ** 2) + self.eps )
 		return torch.mean(error)
 
-	def overlay(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
+	def conform_to_product(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
 		if len(tar.shape) < 2 or len(prd.shape) < 2:
 			raise ValueError("Input tensors must have at least 2 dimensions")
 
@@ -206,9 +206,9 @@ class ModelTrainer(object):
 
 	def single_product_loss(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
 		if cfg().model.loss_fn == 'l2':
-			loss = l2loss(prd, self.overlay(prd, tar) )
+			loss = l2loss(prd, self.conform_to_product(prd, tar) )
 		elif cfg().model.loss_fn == "charbonnier":
-			loss = self.charbonnier(prd, self.overlay(prd, tar) )
+			loss = self.charbonnier(prd, self.conform_to_product(prd, tar) )
 		else:
 			raise Exception("Unknown single-product loss function {}".format(cfg().model.loss_fn))
 		return loss
