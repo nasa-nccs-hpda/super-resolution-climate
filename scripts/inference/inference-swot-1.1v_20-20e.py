@@ -7,7 +7,7 @@ eval_losses: Dict[str,Dict[str,float]]
 
 cname: str = "sres"
 model: str = 'rcan-10-20-64'
-ccustom: Dict[str,Any] = { 'task.data_downsample': 1 }
+ccustom: Dict[str,Any] = { 'task.data_downsample': 2.0 }
 timestep: int = 0
 data_structure: ResultStructure = ResultStructure.Image
 

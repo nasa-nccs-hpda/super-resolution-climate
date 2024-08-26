@@ -503,9 +503,9 @@ class ModelTrainer(object):
 		return  results, losses
 
 	def apply_network(self, target_data: xa.DataArray ) -> Tuple[Tensor,TensorOrTensors,Tensor]:
-		dsample = cfg().task.get('data_downsample',1.0)
 		icdim = list(target_data.dims).index('channels')
 		input_tensor: Tensor = array2tensor( target_data )
+		dsample = cfg().task.get('data_downsample',1.0)
 		if dsample > 1.0:
 			input_tensor =  downsample( input_tensor, scale_factor=dsample )
 		target_channels: List[str] = cfg().task.target_variables

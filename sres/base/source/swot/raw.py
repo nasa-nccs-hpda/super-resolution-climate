@@ -153,9 +153,6 @@ class SWOTRawDataLoader(SRRawDataLoader):
 			self.time_index = time_index
 		return self.timeslice
 
-	def load_batch( self, tile_range: Tuple[int,int] ) -> Optional[xa.DataArray]:
-		return self.select_batch( tile_range )
-
 	def select_batch( self, tile_range: Tuple[int,int]  ) -> Optional[xa.DataArray]:
 		ntiles: int = self.timeslice.shape[0]
 		if tile_range[0] < ntiles:
