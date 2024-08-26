@@ -193,11 +193,17 @@ class ModelTrainer(object):
 		return torch.mean(error)
 
 	def overlay(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
-		for dim in [-1,-2]:
+		if len(tar.shape) < 2 or len(prd.shape) < 2:
+			raise ValueError("Input tensors must have at least 2 dimensions")
+
+		ndim = len(tar.shape)
+		print(f"OVERLAY: prd{list(prd.shape)}, tar{list(tar.shape)}")
+
+		for dim in [ndim - 1, ndim - 2]:
 			if prd.shape[dim] < tar.shape[dim]:
-				bounds = torch.tensor([0,prd.shape[dim]], device=get_device())
-				tar = torch.index_select( tar, dim, bounds )
-		return  tar
+				bounds = torch.tensor([0, prd.shape[dim]], device=get_device())
+				tar = torch.index_select(tar, dim, bounds)
+		return tar
 
 	def single_product_loss(self, prd: torch.Tensor, tar: torch.Tensor) -> torch.Tensor:
 		if cfg().model.loss_fn == 'l2':
