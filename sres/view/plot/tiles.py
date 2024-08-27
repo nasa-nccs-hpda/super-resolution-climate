@@ -83,12 +83,13 @@ class ResultTilePlot(Plot):
 
 	def update_tile_data( self, **kwargs ) -> Tuple[Dict[str,xa.DataArray],Dict[str,float]]:
 		try:
+			print( f"update_tile_data: tileId={self.tileId} time_index={self.time_index} run_inference={self.run_inference}")
 			if self.run_inference:  eval_results, eval_losses = self.trainer.evaluate(self.tset, tile_index=self.tileId,  time_index=self.time_index, interp_loss=True, save_checkpoint=False, **kwargs)
 			else:                   eval_results, eval_losses = load_inference_results( self.channel, ResultStructure.Tiles, self.time_index )
 			if len( eval_losses ) > 0:
 				self.losses = eval_losses
 				self.tile_index = self.tileId
-				return eval_results, eval_losses
+			return eval_results, eval_losses
 		except Exception as e:
 			lgm().log( f"Exception in update_tile_data: {e}")
 			return None, None
