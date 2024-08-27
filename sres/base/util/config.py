@@ -92,7 +92,7 @@ class ConfigContext(initialize):
     def __enter__(self, *args: Any, **kwargs: Any):
        super(ConfigContext, self).__enter__(*args, **kwargs)
        self.activate()
-       print( 'Entering cfg-context: ', self.name )
+       print( f'Entering cfg-context {self.name}, cfg: type={type(cfg())} ' )
        return self
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any):
