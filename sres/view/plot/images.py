@@ -59,7 +59,9 @@ class ResultImagePlot(Plot):
 		self.tileId: int = kwargs.get( 'tile_id', 0 )
 		eval_results, eval_losses = self.update_tile_data(update_model=True)
 		self.images_data: Dict[str, xa.DataArray] = eval_results
-		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.trainer.data_timestamps[tset]) )
+		print( f" eval_results keys = {eval_results.keys()}:" )
+		print( f" eval_results[model]{eval_results['model'].dims}{eval_results['model'].shape}" )
+		self.tslider: StepSlider = StepSlider('Time:', self.time_index, eval_results['model'].shape[0] )
 		self.plot_titles: List[str] = list(self.images_data.keys())
 		self.ims: Dict[int,AxesImage] = {}
 		self.callbacks = dict(button_press_event=self.select_point)
