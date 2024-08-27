@@ -19,7 +19,7 @@ def time_indices(varname: str, data_structure: ResultStructure)-> List[int]:
 	return [ int( Path(fn).stem.split(".")[0].split("-")[1] ) for fn in glob.glob(glob_path) ]
 
 def save_inference_results( varname: str, data_structure: ResultStructure, var_results: Dict[str ,xa.DataArray], timestep: int, var_losses: Dict[str ,float] ):
-	dset = xa.Dataset(data_vars=var_results, attrs=dict(loss_keys=list(var_losses.keys()), loss_values=list(var_losses.keys())))
+	dset = xa.Dataset(data_vars=var_results, attrs=dict(loss_keys=list(var_losses.keys()), loss_values=list(var_losses.values())))
 	rpath = results_path(varname, timestep, data_structure)
 	print(f"Saving inference results to: {rpath}")
 	dset.to_netcdf( rpath, "w")
