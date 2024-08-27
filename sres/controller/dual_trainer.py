@@ -2,6 +2,8 @@ import torch, math
 import xarray, traceback, random
 from datetime import datetime
 from torch import Tensor
+
+from base.util.logging import exception_handled
 from sres.base.gpu import set_device, get_device
 from typing import Any, Dict, List, Tuple, Union, Sequence, Optional
 from sres.base.util.config import ConfigContext, cfg
@@ -511,6 +513,7 @@ class ModelTrainer(object):
 		results = dict( input=self.get_ml_input(tset), target=self.get_ml_target(tset), model=self.get_ml_product(tset), interpolated=self.get_ml_interp(tset) )
 		return  results, losses
 
+	@exception_handled
 	def apply_network(self, target_data: xa.DataArray ) -> Tuple[Tensor,TensorOrTensors,Tensor]:
 		icdim = list(target_data.dims).index('channels')
 		input_tensor: Tensor = array2tensor( target_data )
