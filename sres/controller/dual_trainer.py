@@ -2,9 +2,6 @@ import torch, math
 import xarray, traceback, random
 from datetime import datetime
 from torch import Tensor
-
-from base.util.logging import exception_handled
-from sres.base.gpu import set_device, get_device
 from typing import Any, Dict, List, Tuple, Union, Sequence, Optional
 from sres.base.util.config import ConfigContext, cfg
 from sres.data.tiles import TileIterator
@@ -16,8 +13,7 @@ from sres.base.util.array import array2tensor, downsample, upsample
 from sres.data.batch import BatchDataset
 from sres.base.util.dates import TimeType
 from sres.model.manager import SRModels, ResultsAccumulator
-from sres.base.util.logging import lgm
-from sres.base.util.ops import pctnan, pctnant
+from sres.base.util.logging import lgm, exception_handled
 from sres.controller.checkpoints import CheckpointManager
 import numpy as np, xarray as xa
 from sres.controller.stats import l2loss
