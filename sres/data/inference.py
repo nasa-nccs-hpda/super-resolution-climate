@@ -31,6 +31,7 @@ def load_inference_result_dset( varname: str, data_structure: ResultStructure, t
 	dset.attrs['varname'] = varname
 	return dset
 
+@exception_handled
 def load_inference_results( varname: str, data_structure: ResultStructure, timestep: int ) ->Tuple[Mapping[str ,xa.DataArray],Dict[str ,float]]:
 	print(f"load_inference_results for {varname}, {timestep}, {data_structure}")
 	inference_result_dset: xa.Dataset = load_inference_result_dset( varname, data_structure, timestep )
