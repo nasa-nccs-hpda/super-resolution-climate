@@ -4,7 +4,7 @@ import xarray as xa
 from sres.base.util.config import ConfigContext, cfg, config
 from sres.base.util.logging import lgm, exception_handled, log_timing
 from sres.controller.config import TSet, ResultStructure
-from typing import Any, Dict, List, Tuple, Mapping
+from typing import Any, Dict, List, Tuple, Mapping, Union
 
 def results_path(varname: str, data_structure: ResultStructure):
 	downsample_factor = float(cfg().task.data_downsample)
@@ -14,7 +14,7 @@ def results_path(varname: str, data_structure: ResultStructure):
 	return results_path
 
 def save_inference_results( varname: str, data_structure: ResultStructure, var_results: Dict[str ,xa.DataArray], var_losses: Dict[str ,float] ):
-	dset = xa.Dataset(data_vars=var_results, attrs=dict(losses=list(var_losses.items())))
+	dset = xa.Dataset(data_vars=var_results, attrs=dict(loss_keys=list(var_losses.keys()), loss_values=list(var_losses.keys())))
 	rpath = results_path(varname, data_structure)
 	print(f"Saving inference results to: {rpath}")
 	dset.to_netcdf( rpath, "w")
@@ -28,6 +28,8 @@ def load_inference_result_dset( varname: str, data_structure: ResultStructure ) 
 
 def load_inference_results( varname: str, data_structure: ResultStructure ) ->Tuple[Mapping[str ,xa.DataArray],Dict[str ,float]]:
 	inference_result_dset: xa.Dataset = load_inference_result_dset( varname, data_structure)
-	losses: Dict[str ,float] = dict(inference_result_dset.attrs['losses'])
+	loss_data: List[List[str|float]] = [ inference_result_dset.attrs[aname] for aname in ['loss_keys','loss_values']]
+	losses: Dict[str,float] = dict(zip(*loss_data))
+	print( f" Loaded losses: {losses}")
 	results = inference_result_dset.data_vars
 	return results, losses
