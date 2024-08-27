@@ -4,7 +4,7 @@ from typing  import List, Tuple, Optional, Dict
 from sres.base.io.loader import batchDomain
 from sres.controller.config import TSet, srRes
 from sres.base.util.config import cfg
-from sres.base.util.array import array2tensor, downsample, upsample, xa_downsample, xa_upsample
+from sres.data.tiles import TileGrid
 from sres.data.inference import load_inference_results
 import ipywidgets as ipw
 from matplotlib.axes import Axes
@@ -12,7 +12,6 @@ from matplotlib.image import AxesImage
 from xarray.core.coordinates import DataArrayCoordinates
 from sres.controller.dual_trainer import ModelTrainer
 from sres.controller.config import TSet, ResultStructure
-from sres.view.tile_selection_grid import TileSelectionGrid
 from sres.view.plot.widgets import StepSlider
 from sres.base.util.logging import lgm, exception_handled
 from sres.view.plot.base import Plot
@@ -64,50 +63,31 @@ class ResultTilePlot(Plot):
 		self.images_data: Dict[str, xa.DataArray] = eval_results
 		self.losses: Dict[str, float] = eval_losses
 		assert len(self.losses) > 0, "Aborting ResultPlot: Failed evaluation"
-		self.tile_grid: TileSelectionGrid = TileSelectionGrid(trainer.get_sample_target())
-		self.tile_grid.create_tile_recs(**kwargs)
+		self.tile_grid: TileGrid  = TileGrid()
 		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.trainer.data_timestamps[tset]) )
-		self.sslider: StepSlider = StepSlider('Tile:', self.tile_index, self.sample_input.sizes['tiles'] )
+		self.sslider: StepSlider = StepSlider('Tile:', self.tile_index, cfg().task.batch_size )
 		self.plot_titles: List[List[str]] = [ ['input', 'target'], ['interp', 'model'] ]
 		self.ims = {}
-		self.callbacks = dict(button_press_event=self.select_point)
-		self.create_figure( nrows=2, ncols=2, sharex=True, sharey=True, callbacks=self.callbacks, title='SRes Loss Over Training Epochs' )
+		self.create_figure( nrows=2, ncols=2, sharex=True, sharey=True, title='SRes Loss Over Training Epochs' )
 		self.panels = [ self.fig.canvas, self.tslider, self.sslider ]
 		self.tslider.set_callback( self.time_update )
 		self.sslider.set_callback( self.tile_update )
-
-	@property
-	def sample_target(self) -> xa.DataArray:
-		return self.trainer.get_sample_target()
-
-	@property
-	def tcoords(self) -> DataArrayCoordinates:
-		return self.sample_target.coords
-
-	@property
-	def sample_input(self) -> xa.DataArray:
-		return self.trainer.get_sample_input()
-
-	@property
-	def icoords(self) -> DataArrayCoordinates:
-		return self.sample_input.coords
 
 	@property
 	def batch_domain(self) -> batchDomain:
 		return self.trainer.batch_domain
 
 	def update_tile_data( self, **kwargs ) -> Tuple[Dict[str,xa.DataArray],Dict[str,float]]:
-		self.tile_index = self.tileId
-		if self.run_inference:  eval_results, eval_losses = self.trainer.evaluate(self.tset, tile_index=self.tile_index,  time_index=self.time_index, interp_loss=True, save_checkpoint=False, **kwargs)
-		else:                   eval_results, eval_losses = load_inference_results( self.channel, ResultStructure.Tiles )
-		if len( eval_losses ) > 0:
-			self.losses = eval_losses
-			return eval_results, eval_losses
-
-	def select_point(self,event):
-		lgm().log(f'Mouse click: button={event.button}, dbl={event.dblclick}, x={event.xdata:.2f}, y={event.ydata:.2f}')
-		selected_tile: Optional[int] = self.tile_grid.get_selected(event.xdata, event.ydata)
-		self.select_tile( selected_tile )
+		try:
+			if self.run_inference:  eval_results, eval_losses = self.trainer.evaluate(self.tset, tile_index=self.tileId,  time_index=self.time_index, interp_loss=True, save_checkpoint=False, **kwargs)
+			else:                   eval_results, eval_losses = load_inference_results( self.channel, ResultStructure.Tiles )
+			if len( eval_losses ) > 0:
+				self.losses = eval_losses
+				self.tile_index = self.tileId
+				return eval_results, eval_losses
+		except Exception as e:
+			lgm().log( f"Exception in update_tile_data: {e}")
+			return None, None
 
 	def select_tile(self, selected_tile: int):
 		print(f" ---> selected_tile: {selected_tile}")
@@ -142,12 +122,13 @@ class ResultTilePlot(Plot):
 	def tile_update(self, sindex: int):
 		lgm().log( f" <-------------------------- tile_update ---> sindex = {sindex}" )
 		self.tileId = sindex
-		self.images_data, loss = self.update_tile_data()
-		self.update_subplots()
+		idata, loss = self.update_tile_data()
+		if idata is not None:
+			self.images_data = idata
+			self.update_subplots()
 
 
 	def plot( self ) -> ipw.Box:
-		# self.tile_grid.overlay_grid( self.axs[1,0] )
 		self.generate_subplots()
 		print( f"Creating widget...")
 		return ipw.VBox(self.panels)
@@ -175,7 +156,7 @@ class ResultTilePlot(Plot):
 	def generate_subplot(self, irow: int, icol: int):
 		ax: Axes = self.axs[irow, icol]
 		ax.set_aspect(0.5)
-		ts: Dict[str, int] = self.tile_grid.tile_grid.get_full_tile_size()
+		ts: Dict[str, int] = self.tile_grid.get_full_tile_size()
 		ax.set_xlim([0, ts['x']])
 		ax.set_ylim([0, ts['y']])
 		image: xa.DataArray = self.get_subplot_image(irow, icol, ts)
@@ -187,7 +168,7 @@ class ResultTilePlot(Plot):
 		self.ims[ (irow, icol) ] = iplot
 
 	def update_subplot(self, irow: int, icol: int):
-		ts: Dict[str, int] = self.tile_grid.tile_grid.get_full_tile_size()
+		ts: Dict[str, int] = self.tile_grid.get_full_tile_size()
 		image: xa.DataArray = self.get_subplot_image(irow, icol, ts)
 		self.ims[ (irow, icol) ].set_data(image.values)
 
