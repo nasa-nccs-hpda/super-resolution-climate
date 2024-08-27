@@ -97,9 +97,11 @@ class ConfigContext(initialize):
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any):
        super(ConfigContext, self).__exit__(exc_type, exc_val, exc_tb)
-       print( 'Exiting cfg-context: ', self.name )
        self.deactivate()
-       if exc_type is not None:
+       if exc_type is None:
+           print(f'Exiting cfg-context {self.name} cleanly' )
+       else:
+           print(f'Exiting cfg-context {self.name} with exception:')
            traceback.print_exception( exc_type, value=exc_val, tb=exc_tb)
 
     def __del__ (self):
