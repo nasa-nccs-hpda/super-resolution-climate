@@ -29,6 +29,7 @@ for data_downsample in downsample_values:
 		controller.init_context( cc, model )
 		loss_pct = []
 		for its in range(nts):
+			print( f"\n Run inference, data_downsample={data_downsample}, its={its}")
 			infdata, evlosses = controller.inference( its, data_structure, save=False )
 			inference_data: Dict[str,xa.DataArray] = infdata[varname]
 			eval_losses: Dict[str,float] = evlosses[varname]
