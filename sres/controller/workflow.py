@@ -59,7 +59,7 @@ class WorkflowController(object):
 				for vname in varnames:
 					image_data: Dict[str, xa.DataArray] = image_results[vname]
 					eval_loss: Dict[str, float] = eval_results[vname]
-					save_inference_results( vname, data_structure, image_data, eval_loss )
+					save_inference_results( vname, data_structure, image_data, timestep, eval_loss )
 			return image_results, eval_results
 
 	def initialize(self, cname, model, **kwargs ):

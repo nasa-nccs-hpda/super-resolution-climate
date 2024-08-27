@@ -9,6 +9,7 @@ from sres.data.inference import load_inference_results
 import ipywidgets as ipw
 from matplotlib.axes import Axes
 from matplotlib.image import AxesImage
+from sres.data.inference import time_indices
 from xarray.core.coordinates import DataArrayCoordinates
 from sres.controller.dual_trainer import ModelTrainer
 from sres.controller.config import TSet, ResultStructure
@@ -66,7 +67,8 @@ class ResultTilePlot(Plot):
 		print( f" eval_results[model]{eval_results['model'].dims}{eval_results['model'].shape}" )
 		assert len(self.losses) > 0, "Aborting ResultPlot: Failed evaluation"
 		self.tile_grid: TileGrid  = TileGrid()
-		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.trainer.data_timestamps[tset]) )
+		self.time_indices = list(range(len(self.trainer.data_timestamps[tset]))) if  self.run_inference  else time_indices()
+		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.time_indices) )
 		self.sslider: StepSlider = StepSlider('Tile:', self.tile_index, cfg().task.batch_size )
 		self.plot_titles: List[List[str]] = [ ['input', 'target'], ['interp', 'model'] ]
 		self.ims = {}
@@ -82,7 +84,7 @@ class ResultTilePlot(Plot):
 	def update_tile_data( self, **kwargs ) -> Tuple[Dict[str,xa.DataArray],Dict[str,float]]:
 		try:
 			if self.run_inference:  eval_results, eval_losses = self.trainer.evaluate(self.tset, tile_index=self.tileId,  time_index=self.time_index, interp_loss=True, save_checkpoint=False, **kwargs)
-			else:                   eval_results, eval_losses = load_inference_results( self.channel, ResultStructure.Tiles )
+			else:                   eval_results, eval_losses = load_inference_results( self.channel, ResultStructure.Tiles, self.time_index )
 			if len( eval_losses ) > 0:
 				self.losses = eval_losses
 				self.tile_index = self.tileId
@@ -115,8 +117,8 @@ class ResultTilePlot(Plot):
 
 	@exception_handled
 	def time_update(self, sindex: int):
-		lgm().log(f"\n time_update ---> sindex = {sindex}")
-		self.time_index = sindex
+		self.time_index = self.time_indices[ sindex ]
+		lgm().log(f"\n time_update ---> sindex: {sindex} -> {self.time_index}")
 		self.images_data, loss = self.update_tile_data()
 		self.update_subplots()
 
