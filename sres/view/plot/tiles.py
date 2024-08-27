@@ -182,7 +182,7 @@ class ResultTilePlot(Plot):
 		label = self.plot_titles[irow][icol]
 		rmserror = ""
 		if irow == 1:
-			loss: float = self.losses.get(label,0.0)
+			loss: float = float(self.losses.get(label,0.0))
 			rmserror = f", RMSE: {loss*1000:.1f}"
 		title = f"{label}{rmserror}"
 		return title
