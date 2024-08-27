@@ -14,7 +14,7 @@ def results_path(varname: str, data_structure: ResultStructure):
 	return results_path
 
 def save_inference_results( varname: str, data_structure: ResultStructure, var_results: Dict[str ,xa.DataArray], var_losses: Dict[str ,float] ):
-	dset = xa.Dataset(data_vars=var_results, attrs=dict(losses=var_losses) )
+	dset = xa.Dataset(data_vars=var_results, attrs=dict(losses=list(var_losses.items())))
 	rpath = results_path(varname, data_structure)
 	print(f"Saving inference results to: {rpath}")
 	dset.to_netcdf( rpath, "w")
@@ -28,6 +28,6 @@ def load_inference_result_dset( varname: str, data_structure: ResultStructure ) 
 
 def load_inference_results( varname: str, data_structure: ResultStructure ) ->Tuple[Mapping[str ,xa.DataArray],Dict[str ,float]]:
 	inference_result_dset: xa.Dataset = load_inference_result_dset( varname, data_structure)
-	losses: Dict[str ,float] = inference_result_dset.attrs['losses']
+	losses: Dict[str ,float] = dict(inference_result_dset.attrs['losses'])
 	results = inference_result_dset.data_vars
 	return results, losses
