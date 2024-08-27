@@ -11,7 +11,7 @@ cname: str = "sres"
 model: str = 'rcan-10-20-64'
 nts: int = 10
 varname = "SST"
-downsample_values = [ 1.1, 1.3, 1.5, 2.0, 2.5, 3.0 ]
+downsample_values = [1.0, 1.05] # [ 1.1, 1.3, 1.5, 2.0, 2.5, 3.0 ]
 data_structure: ResultStructure = ResultStructure.Image
 
 configuration = dict(
