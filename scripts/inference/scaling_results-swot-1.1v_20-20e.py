@@ -36,8 +36,12 @@ for data_downsample in downsample_values:
 			model_loss, interp_loss = eval_losses['model'], eval_losses['interpolated']
 			loss_pct.append( (model_loss/interp_loss)*100.0 )
 		mean_loss_pct = np.array( loss_pct ).mean()
-		print( f"data_downsample={data_downsample}, mean_loss_pct={mean_loss_pct:.2f}")
 		downsample_results[data_downsample] =  mean_loss_pct
+
+print( f"\n Scaling Results for {configuration['dataset']}:{configuration['task']}")
+print( f" downsample_factor  mean_loss_pct ")
+for data_downsample, mean_loss_pct in downsample_results.items():
+	print( f" {data_downsample:.2f}   {mean_loss_pct:.2f}")
 
 
 
