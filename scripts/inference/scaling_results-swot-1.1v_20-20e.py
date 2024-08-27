@@ -10,11 +10,12 @@ eval_losses: Dict[str,Dict[str,float]]
 cname: str = "sres"
 model: str = 'rcan-10-20-64'
 nts: int = 2
+varname = "SST"
 downsample_values = [ 1.1, 1.2] # 1.3, 1.5, 2.0, 2.5, 3.0 ]
 data_structure: ResultStructure = ResultStructure.Image
 
 configuration = dict(
-	task = "SST-tiles-48",
+	task = f"{varname}-tiles-48",
 	dataset = "swot_20-20e",
 	pipeline = "sres",
 	platform = "explore"
@@ -28,7 +29,9 @@ for data_downsample in downsample_values:
 		controller.init_context( cc, model )
 		loss_pct = []
 		for its in range(nts):
-			inference_data, eval_losses = controller.inference( its, data_structure, save=False )
+			infdata, evlosses = controller.inference( its, data_structure, save=False )
+			inference_data: Dict[str,xa.DataArray] = infdata[varname]
+			eval_losses: Dict[str,float] = evlosses[varname]
 			model_loss, interp_loss = eval_losses['model'], eval_losses['interpolated']
 			loss_pct.append( (model_loss/interp_loss)*100.0 )
 		mean_loss_pct = np.array( loss_pct ).mean()
