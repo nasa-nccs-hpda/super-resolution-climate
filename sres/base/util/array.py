@@ -71,7 +71,7 @@ def array2tensor( darray: Union[xa.DataArray,np.ndarray] ) -> Tensor:
 
 def downsample( target_data: Union[xa.DataArray,Tensor], **kwargs) -> Tensor:
     scale_factor = kwargs.get('scale_factor', math.prod(cfg().model.downscale_factors))
-    print( f"downsample: target_data{list(target_data.shape)}, scale_factor={scale_factor}, attrs={target_data.attrs}")
+    print( f"downsample: target_data{list(target_data.shape)}, scale_factor={scale_factor}")
     target_tensor: Tensor = array2tensor(target_data) if type(target_data) is xa.DataArray else target_data
     downsampled = torch.nn.functional.interpolate(target_tensor, scale_factor=1.0/scale_factor, mode=torch_interp_mode(True))
     print(f"  --> result: downsampled{list(downsampled.shape)}")
