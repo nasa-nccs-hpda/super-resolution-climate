@@ -62,6 +62,8 @@ class ResultTilePlot(Plot):
 		eval_results, eval_losses = self.update_tile_data(update_model=True)
 		self.images_data: Dict[str, xa.DataArray] = eval_results
 		self.losses: Dict[str, float] = eval_losses
+		print( f" eval_results keys = {eval_results.keys()}:" )
+		print( f" eval_results[model]{eval_results['model'].dims}{eval_results['model'].shape}" )
 		assert len(self.losses) > 0, "Aborting ResultPlot: Failed evaluation"
 		self.tile_grid: TileGrid  = TileGrid()
 		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.trainer.data_timestamps[tset]) )
