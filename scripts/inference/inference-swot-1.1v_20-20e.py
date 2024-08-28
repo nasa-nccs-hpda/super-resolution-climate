@@ -7,7 +7,7 @@ eval_losses: Dict[str,Dict[str,float]]
 
 cname: str = "sres"
 model: str = 'rcan-10-20-64'
-ccustom: Dict[str,Any] = { 'task.data_downsample': 1.0 }
+ccustom: Dict[str,Any] = { 'task.data_downsample': 2.0 }
 nts = 10
 data_structure: ResultStructure = ResultStructure.Tiles
 timesteps: List[int] = list(range(0,nts))
