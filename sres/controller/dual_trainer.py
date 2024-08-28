@@ -244,7 +244,7 @@ class ModelTrainer(object):
 		return btarget
 
 	def get_ml_input(self, tset: TSet) -> xa.DataArray:
-		return  self.to_xa( self.input[tset], True )
+		return  self.to_xa( self.input[tset] ) # , True )
 
 	def get_ml_target(self, tset: TSet) -> xa.DataArray:
 		return self.to_xa( self.target[tset] )
