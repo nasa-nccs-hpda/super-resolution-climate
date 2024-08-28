@@ -37,13 +37,13 @@ def load_inference_result_dset( varname: str, data_structure: ResultStructure, t
 	return dset
 
 @exception_handled
-def load_inference_results( varname: str, data_structure: ResultStructure, timestep: int ) ->Tuple[Mapping[str ,xa.DataArray],Dict[str ,float]]:
+def load_inference_results( varname: str, data_structure: ResultStructure, timestep: int ) ->Tuple[Dict[str ,xa.DataArray],Dict[str ,float]]:
 	print(f"load_inference_results for {varname}, {timestep}, {data_structure}")
 	inference_result_dset: xa.Dataset = load_inference_result_dset( varname, data_structure, timestep )
 	print(f"inference_result_dset: vars={list(inference_result_dset.data_vars.keys())}, attrs={inference_result_dset.attrs}")
 	loss_data: List[List[str|float]] = [ inference_result_dset.attrs[aname] for aname in ['loss_keys','loss_values']]
 	losses: Dict[str,float] = dict(zip(*loss_data))
 	print( f" Loaded losses: {losses}")
-	results = inference_result_dset.data_vars
+	results: Dict[str ,xa.DataArray] = dict(inference_result_dset.data_vars)
 	results['input'] = results['input'].rename(ys='y', xs='x')
 	return results, losses
