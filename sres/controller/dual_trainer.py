@@ -346,8 +346,8 @@ class ModelTrainer(object):
 	def init_data_timestamps(self):
 		if len(self.data_timestamps) == 0:
 			ctimes: List[TimeType] = self.get_dataset().get_batch_time_coords()
-			lgm().log( f"init_data_timestamps: {len(ctimes)} times", display=True)
 			self.data_timestamps = ttsplit_times(ctimes)
+			lgm().log( f"init_data_timestamps: {len(ctimes)} times", display=True)
 
 	def tile_in_batch(self, itile, ctile ):
 		if self.tile_index < 0: return True
