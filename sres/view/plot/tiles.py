@@ -1,6 +1,6 @@
 import torch, numpy as np
 import xarray as xa
-from typing  import List, Tuple, Optional, Dict
+from typing  import List, Tuple, Optional, Dict, Mapping
 from sres.base.io.loader import batchDomain
 from sres.controller.config import TSet, srRes
 from sres.base.util.config import cfg
@@ -56,7 +56,6 @@ class ResultTilePlot(Plot):
 		self.tset: TSet = tset
 		self.time_index: int = kwargs.get( 'time_id', 0 )
 		self.tile_index: int = kwargs.get( 'tile_id', 0 )
-		self.run_inference: int = kwargs.get('run_inference', True)
 		self.tileId: int = kwargs.get( 'tile_id', 0 )
 		self.channel: str = kwargs.get( 'channel', trainer.target_variables[0] )
 		self.splabels = [['input', self.upscale_plot_label], ['target', self.result_plot_label]]
@@ -67,7 +66,7 @@ class ResultTilePlot(Plot):
 		print( f" eval_results[model]{eval_results['model'].dims}{eval_results['model'].shape}" )
 		assert len(self.losses) > 0, "Aborting ResultPlot: Failed evaluation"
 		self.tile_grid: TileGrid  = TileGrid()
-		self.time_indices = list(range(len(self.trainer.data_timestamps[tset]))) if  self.run_inference  else time_indices(self.channel, ResultStructure.Tiles)
+		self.time_indices = time_indices(self.channel, ResultStructure.Tiles)
 		self.time_index = min( self.time_index, len(self.time_indices)-1)
 		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.time_indices) )
 		self.sslider: StepSlider = StepSlider('Tile:', self.tile_index, cfg().task.batch_size )
@@ -82,18 +81,17 @@ class ResultTilePlot(Plot):
 	def batch_domain(self) -> batchDomain:
 		return self.trainer.batch_domain
 
-	def update_tile_data( self, **kwargs ) -> Tuple[Dict[str,xa.DataArray],Dict[str,float]]:
+	def update_tile_data( self, **kwargs ) -> Tuple[ Optional[ Mapping[str,xa.DataArray] ], Dict[str,float] ]:
 		try:
-			print( f"update_tile_data: tileId={self.tileId} time_index={self.time_index} run_inference={self.run_inference}")
-			if self.run_inference:  eval_results, eval_losses = self.trainer.evaluate(self.tset, tile_index=self.tileId,  time_index=self.time_index, interp_loss=True, save_checkpoint=False, **kwargs)
-			else:                   eval_results, eval_losses = load_inference_results( self.channel, ResultStructure.Tiles, self.time_index )
+			print( f"update_tile_data: tileId={self.tileId} time_index={self.time_index} ")
+			eval_results, eval_losses = load_inference_results( self.channel, ResultStructure.Tiles, self.time_index )
 			if len( eval_losses ) > 0:
 				self.losses = eval_losses
 				self.tile_index = self.tileId
 			return eval_results, eval_losses
 		except Exception as e:
 			lgm().log( f"Exception in update_tile_data: {e}")
-			return None, None
+			return None, {}
 
 	def select_tile(self, selected_tile: int):
 		print(f" ---> selected_tile: {selected_tile}")

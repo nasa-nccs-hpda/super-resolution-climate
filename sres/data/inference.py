@@ -7,11 +7,13 @@ from sres.base.util.logging import lgm, exception_handled, log_timing
 from sres.controller.config import TSet, ResultStructure
 from typing import Any, Dict, List, Tuple, Mapping, Union
 
-def results_path(varname: str, timestep: int|str, data_structure: ResultStructure):
+def results_path(varname: str, timestep: int|str, data_structure: ResultStructure, **kwargs ):
+	remove = kwargs.get('remove', False)
 	downsample_factor = float(cfg().task.data_downsample)
 	dss = "" if (downsample_factor == 1.0) else f"_ds-{downsample_factor:.2f}"
 	results_path = f"{cfg().platform.results}/inference/{config()['dataset']}/{config()['task']}/{varname}-{timestep}.{data_structure.value}{dss}.nc"
 	os.makedirs(os.path.dirname(results_path), exist_ok=True)
+	if remove and os.path.exists(results_path): os.remove(results_path)
 	return results_path
 
 def time_indices(varname: str, data_structure: ResultStructure)-> List[int]:
@@ -20,7 +22,7 @@ def time_indices(varname: str, data_structure: ResultStructure)-> List[int]:
 
 def save_inference_results( varname: str, data_structure: ResultStructure, var_results: Dict[str ,xa.DataArray], timestep: int, var_losses: Dict[str ,float] ):
 	dset = xa.Dataset(data_vars=var_results, attrs=dict(loss_keys=list(var_losses.keys()), loss_values=list(var_losses.values())))
-	rpath = results_path(varname, timestep, data_structure)
+	rpath = results_path( varname, timestep, data_structure, remove=True )
 	print(f"Saving inference results to: {rpath}")
 	dset.to_netcdf( rpath, "w")
 
