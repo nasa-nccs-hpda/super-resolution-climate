@@ -21,6 +21,7 @@ def time_indices(varname: str, data_structure: ResultStructure)-> List[int]:
 	return [ int( Path(fn).stem.split(".")[0].split("-")[1] ) for fn in glob.glob(glob_path) ]
 
 def save_inference_results( varname: str, data_structure: ResultStructure, var_results: Dict[str ,xa.DataArray], timestep: int, var_losses: Dict[str ,float] ):
+	var_results['input'] = var_results['input'].rename( y='ys', x='xs')
 	dset = xa.Dataset(data_vars=var_results, attrs=dict(loss_keys=list(var_losses.keys()), loss_values=list(var_losses.values())))
 	rpath = results_path( varname, timestep, data_structure, remove=True )
 	print(f"Saving inference results to: {rpath}, contents:")
@@ -44,4 +45,5 @@ def load_inference_results( varname: str, data_structure: ResultStructure, times
 	losses: Dict[str,float] = dict(zip(*loss_data))
 	print( f" Loaded losses: {losses}")
 	results = inference_result_dset.data_vars
+	results['input'] = results['input'].rename(ys='y', xs='x')
 	return results, losses

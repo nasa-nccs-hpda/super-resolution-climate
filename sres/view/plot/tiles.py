@@ -64,7 +64,7 @@ class ResultTilePlot(Plot):
 		self.losses: Dict[str, float] = eval_losses
 		print( f" inference_data({self.channel}) time_index={self.time_index} tile_index={self.tile_index}:" )
 		for rtype, rdata in eval_results.items():
-			print(f" ** {rtype}{rdata.dims}{rdata.shape}")
+			print(f"   ** {rtype}{rdata.dims}{rdata.shape}")
 		print( f" eval_results[model]{eval_results['model'].dims}{eval_results['model'].shape}" )
 		assert len(self.losses) > 0, "Aborting ResultPlot: Failed evaluation"
 		self.tile_grid: TileGrid  = TileGrid()
