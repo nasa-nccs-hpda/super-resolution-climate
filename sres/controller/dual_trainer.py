@@ -459,7 +459,7 @@ class ModelTrainer(object):
 		epoch = train_state.get( 'epoch', 0 )
 		self.init_data_timestamps()
 		proc_start = time.time()
-		lgm().log(f" ##### evaluate({tset.value}): time_index={self.time_index}, tile_index={self.tile_index} ##### ")
+		lgm().log(f" ##### evaluate({tset.value}): time_index={self.time_index}, tile_index={self.tile_index}, nts={len(self.data_timestamps[tset])} ##### ")
 
 		batch_model_losses, batch_interp_losses, interp_sloss = [], [], 0.0
 		binput, boutput, btarget, binterp, ibatch = None, None, None, None, 0
@@ -467,6 +467,7 @@ class ModelTrainer(object):
 			if (self.time_index < 0) or (itime == self.time_index):
 				timeslice: xa.DataArray = self.load_timeslice(ctime)
 				tile_iter = TileIterator.get_iterator( ntiles=timeslice.sizes['tiles'] )
+				lgm().log(f" --> tile_iter: ntiles={timeslice.sizes['tiles']} from timeslice{timeslice.dims}{list(timeslice.shape)}")
 				for itile, ctile in enumerate(iter(tile_iter)):
 					if self.tile_in_batch(itile, ctile):
 						lgm().log(f"     -----------------    evaluate[{tset.name}]: ctime[{itime}]={ctime}, time_index={self.time_index}, ctile[{itile}]={ctile}", display=True)
