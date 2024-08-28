@@ -198,6 +198,7 @@ class ResultTilePlot(Plot):
 				batch_time_index = self.time_index % self.trainer.get_ml_input(self.tset).shape[0]
 				image = image.isel(tiles=batch_time_index).squeeze(drop=True)
 			elif self.batch_domain == batchDomain.Tiles:
+				lgm().log( f" Select tile {self.tile_index} from image_data{image.dims}{image.shape}" )
 				image = image.isel(tiles=self.tile_index).squeeze(drop=True)
 		dx, dy = ts['x']/image.shape[-1], ts['y']/image.shape[-2]
 		coords = dict( x=np.linspace(-dx/2, ts['x']+dx/2, image.shape[-1] ), y=np.linspace(-dy/2, ts['y']+dy/2, image.shape[-2] ) )
