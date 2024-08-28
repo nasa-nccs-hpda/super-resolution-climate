@@ -165,7 +165,7 @@ class ResultTilePlot(Plot):
 		ts: Dict[str, int] = self.tile_grid.get_full_tile_size()
 		ax.set_xlim([0, ts['x']])
 		ax.set_ylim([0, ts['y']])
-		image: xa.DataArray = self.get_subplot_image(irow, icol, ts)
+		image: Optional[xa.DataArray] = self.get_subplot_image(irow, icol, ts)
 		vrange = cscale(image, 2.0)
 
 		print( f"subplot_image[{irow}, {icol}]: image{image.dims}{image.shape}, vrange={vrange}")
@@ -175,8 +175,9 @@ class ResultTilePlot(Plot):
 
 	def update_subplot(self, irow: int, icol: int):
 		ts: Dict[str, int] = self.tile_grid.get_full_tile_size()
-		image: xa.DataArray = self.get_subplot_image(irow, icol, ts)
-		self.ims[ (irow, icol) ].set_data(image.values)
+		image: Optional[xa.DataArray] = self.get_subplot_image(irow, icol, ts)
+		if image is not None:
+			self.ims[ (irow, icol) ].set_data(image.values)
 
 	def get_subplot_title(self,irow,icol) -> str:
 		label = self.plot_titles[irow][icol]
@@ -188,7 +189,7 @@ class ResultTilePlot(Plot):
 		title = f"{label}{rmserror}"
 		return title
 
-	def get_subplot_image(self, irow: int, icol: int, ts: Dict[str, int] ) -> xa.DataArray:
+	def get_subplot_image(self, irow: int, icol: int, ts: Dict[str, int] ) -> Optional[xa.DataArray]:
 		image: xa.DataArray = self.image(irow, icol)
 		if 'channels' in image.dims:
 			print( f" get_subplot_image: image.dims={image.dims}, channel={self.channel}, image.channels={image.coords['channels'].values.tolist()}")
@@ -199,9 +200,10 @@ class ResultTilePlot(Plot):
 				image = image.isel(tiles=batch_time_index).squeeze(drop=True)
 			elif self.batch_domain == batchDomain.Tiles:
 				lgm().log( f" Select tile {self.tile_index} from image_data{image.dims}{image.shape}" )
-				image = image.isel(tiles=self.tile_index).squeeze(drop=True)
-		dx, dy = ts['x']/image.shape[-1], ts['y']/image.shape[-2]
-		coords = dict( x=np.linspace(-dx/2, ts['x']+dx/2, image.shape[-1] ), y=np.linspace(-dy/2, ts['y']+dy/2, image.shape[-2] ) )
-		image = image.assign_coords( coords )
+				image = image.isel(tiles=self.tile_index).squeeze(drop=True) if self.tile_index < image.sizes['tiles'] else None
+		if image is not None:
+			dx, dy = ts['x']/image.shape[-1], ts['y']/image.shape[-2]
+			coords = dict( x=np.linspace(-dx/2, ts['x']+dx/2, image.shape[-1] ), y=np.linspace(-dy/2, ts['y']+dy/2, image.shape[-2] ) )
+			image = image.assign_coords( coords )
 		return image
 
