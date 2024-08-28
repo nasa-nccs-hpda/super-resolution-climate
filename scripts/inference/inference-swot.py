@@ -7,14 +7,13 @@ eval_losses: Dict[str,Dict[str,float]]
 
 cname: str = "sres"
 model: str = 'rcan-10-20-64'
-ccustom: Dict[str,Any] = { 'task.data_downsample': 2.0 }
-nts = 10
+ccustom: Dict[str,Any] = {}
+time_index_bounds = [ 0, 100 ]
 data_structure: ResultStructure = ResultStructure.Tiles
-timesteps: List[int] = list(range(0,nts))
 
 configuration = dict(
 	task = "SST-tiles-48",
-	dataset = "swot_20-20e",
+	dataset = "swot_20-60n",
 	pipeline = "sres",
 	platform = "explore"
 )
@@ -22,7 +21,7 @@ configuration = dict(
 controller = WorkflowController( cname, configuration, interp_loss=True )
 controller.initialize( cname, model, **ccustom )
 
-for timestep in timesteps:
+for timestep in list(range(*time_index_bounds)):
 	inference_data, eval_losses = controller.inference( timestep, data_structure, save=True )
 
 	print( f"Inference results for {configuration['dataset']}:{configuration['task']} timestep={timestep}, format={data_structure.value}:")
