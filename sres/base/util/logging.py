@@ -70,7 +70,6 @@ class LogManager(object):
     def init_logging(self):
         from sres.base.util.config import cfg, cid
         self.log_dir =  f"{cfg().platform.cache}/logs"
-
         overwrite = cfg().task.get("overwrite_log", True)
         self._lid = "" if overwrite else f"-{os.getpid()}"
         self.log_file = f'{self.log_dir}/{cid()}{self._lid}.log'
