@@ -63,6 +63,7 @@ class WorkflowController(object):
 			return image_results, eval_results
 
 	def initialize(self, cname, model, **kwargs ):
+		lgm().log( f"Initialize WorkflowController({cname}), model={model}, config={kwargs}")
 		self.model = model
 		self.config = ConfigContext.activate_global( cname, model=model, **kwargs )
 		self.trainer = ModelTrainer( self.config )

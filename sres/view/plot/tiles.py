@@ -72,7 +72,7 @@ class ResultTilePlot(Plot):
 		self.time_index = min( self.time_index, len(self.time_indices)-1)
 		self.tslider: StepSlider = StepSlider('Time:', self.time_index, len(self.time_indices) )
 		self.sslider: StepSlider = StepSlider('Tile:', self.tile_index, cfg().task.batch_size )
-		self.plot_titles: List[List[str]] = [ ['input', 'target'], ['interp', 'model'] ]
+		self.plot_titles: List[List[str]] = [ ['input', 'target'], ['interpolated', 'model'] ]
 		self.ims = {}
 		self.create_figure( nrows=2, ncols=2, sharex=True, sharey=True, title='SRes Loss Over Training Epochs' )
 		self.panels = [ self.fig.canvas, self.tslider, self.sslider ]
