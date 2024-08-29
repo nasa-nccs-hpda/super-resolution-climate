@@ -9,10 +9,10 @@ num_workers: 4
 
 batch_size: 36
 ttsplit: { train: 0.95, valid: 0.05, test: 0.0 }
-nepochs: 30
+nepochs: 100
 nrefinements: 0
 refine_fraction: 0.15
-lr: 5e-5
+lr: 1e-4
 xyflip: True
 data_downsample: 1
 
