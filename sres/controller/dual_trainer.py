@@ -449,9 +449,6 @@ class ModelTrainer(object):
 
 		return assembled_images
 
-
-
-
 	def evaluate(self, tset: TSet, **kwargs) -> Tuple[Dict[str,xa.DataArray],Dict[str,float]]:
 		seed = kwargs.get('seed', 333)
 		assert tset in [ TSet.Validation, TSet.Test ], f"Invalid tset in training evaluation: {tset.name}"
@@ -475,6 +472,7 @@ class ModelTrainer(object):
 		binput, boutput, btarget, binterp, ibatch = None, None, None, None, 0
 		for itime, ctime in enumerate(self.data_timestamps[tset]):
 			if (self.time_index < 0) or (itime == self.time_index):
+				self.clear_results(tset)
 				timeslice: xa.DataArray = self.load_timeslice(ctime)
 				tile_iter = TileIterator.get_iterator( ntiles=timeslice.sizes['tiles'] )
 				lgm().log(f" --> tile_iter: ntiles={timeslice.sizes['tiles']} from timeslice{timeslice.dims}{list(timeslice.shape)}")
@@ -490,7 +488,7 @@ class ModelTrainer(object):
 						batch_model_losses.append( model_sloss )
 						[interp_sloss, interp_multilevel_mloss] = self.loss(binterp,btarget)
 						batch_interp_losses.append( interp_sloss )
-						self.merge_results( tset, binput, btarget, boutput, binterp)
+						self.merge_results( tset, itime,  binput, btarget, boutput, binterp)
 						xyf = batch_data.attrs.get('xyflip', 0)
 						sloss = batch_model_losses[-1]
 						lgm().log(f" **  ** <{self.model_manager.model_name}:{tset.name}> BATCH[{ibatch:3}] TIME[{itime:3}:{ctime:4}] TILES{list(ctile.values())}[F{xyf}]-> Loss= {sloss:5.1f} ({interp_sloss*1000:5.1f}): {(sloss/interp_sloss)*100:.2f}%", display=True )
@@ -514,7 +512,13 @@ class ModelTrainer(object):
 		results = dict( input=self.get_ml_input(tset), target=self.get_ml_target(tset), model=self.get_ml_product(tset), interpolated=self.get_ml_interp(tset) )
 		return  results, losses
 
-	def merge_results(self, tset: TSet, input: Tensor, target: Tensor, output: Tensor, interp: Tensor):
+	def clear_results(self, tset: TSet):
+		self.input[tset]   = None
+		self.target[tset]  = None
+		self.product[tset] = None
+		self.interp[tset]  = None
+
+	def merge_results(self, tset: TSet, itime: int,  input: Tensor, target: Tensor, output: Tensor, interp: Tensor):
 		self.input[tset]   = merge_results_tiles( self.input.get(tset),   input  )
 		self.target[tset]  = merge_results_tiles( self.target.get(tset),  target )
 		self.product[tset] = merge_results_tiles( self.product.get(tset), output )
