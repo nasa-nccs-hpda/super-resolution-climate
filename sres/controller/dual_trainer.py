@@ -366,6 +366,7 @@ class ModelTrainer(object):
 
 	def process_image(self, tset: TSet, itime: int, **kwargs) -> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
 		seed = kwargs.get('seed', 333)
+		cfg().task['xyflip'] = False
 		torch.manual_seed(seed)
 		torch.cuda.manual_seed(seed)
 		self.time_index = itime

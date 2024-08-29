@@ -38,16 +38,13 @@ def xyflip(batch_data: xa.DataArray) -> xa.DataArray:
 	bflip, flip_index = cfg().task.get('xyflip',False), 0
 	if bflip:
 		flip_index = random.randint(0, 7)
-		print(f" *************  xyflip[{flip_index%2}][{(flip_index//2)%2}][{flip_index//4}]: flip_index={flip_index}:   ************* ")
+		lgm().log(f" *************  xyflip[{flip_index%2}][{(flip_index//2)%2}][{flip_index//4}]: flip_index={flip_index}:   ************* ")
 		if flip_index%2 == 1:
 			batch_data = flip_xarray_axis( batch_data, axis=-1 )
-			print(f" ---> FLIP[{flip_index//2}] AXIS -1 " )
 		if (flip_index//2)%2 == 1:
 			batch_data = flip_xarray_axis( batch_data, axis=-2 )
-			print(f" ---> FLIP[{flip_index%2}] AXIS -2 ")
 		if flip_index//4 == 1:
 			batch_data = flip_xarray_axis( batch_data, axis=None )
-			print(f" ---> SWAP[{flip_index//4}] AXES ")
 	batch_data.attrs['xyflip'] = flip_index
 	return batch_data
 
