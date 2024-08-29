@@ -36,7 +36,7 @@ def flip_xarray_axis( data: xa.DataArray, axis: int ) -> xa.DataArray:
 def xyflip(batch_data: xa.DataArray) -> xa.DataArray:
 	bflip, flip_index = cfg().task.get('xyflip',False), 0
 	if bflip:
-		flip_index = random.randint(0, 3)
+		flip_index = random.randint(0, 7)
 		print(f" ************* xyflip: flip_index={flip_index} ************* ")
 		if flip_index // 2 == 1:
 			batch_data = flip_xarray_axis( batch_data, axis=-1 )
@@ -44,6 +44,9 @@ def xyflip(batch_data: xa.DataArray) -> xa.DataArray:
 		if flip_index  % 2 == 1:
 			batch_data = flip_xarray_axis( batch_data, axis=-2 )
 			print(f" ---> FLIP AXIS -2 ")
+		if flip_index // 4 == 1:
+			batch_data = np.swapaxes( batch_data, 0, 1 )
+			print(f" ---> SWAP AXES ")
 	batch_data.attrs['xyflip'] = flip_index
 	return batch_data
 
