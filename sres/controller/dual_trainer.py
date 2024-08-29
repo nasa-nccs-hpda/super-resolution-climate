@@ -132,10 +132,10 @@ class ModelTrainer(object):
 		self.scale_factor = math.prod(self.downscale_factors)
 		self.conform_to_data_grid()
 	#	self.grid_shape, self.gridops, self.lmax = self.configure_grid()
-		self.input: np.ndarray = {}
-		self.target: np.ndarray = {}
-		self.product: np.ndarray = {}
-		self.interp: np.ndarray = {}
+		self.input:   Dict[TSet,np.ndarray] = {}
+		self.target:  Dict[TSet,np.ndarray] = {}
+		self.product: Dict[TSet,np.ndarray] = {}
+		self.interp:  Dict[TSet,np.ndarray] = {}
 		self.current_losses: Dict[str,float] = {}
 		self.time_index: int = -1
 		self.tile_index: int = -1
@@ -514,10 +514,10 @@ class ModelTrainer(object):
 		return  results, losses
 
 	def merge_results(self, tset: TSet, input: Tensor, target: Tensor, output: Tensor, interp: Tensor):
-		self.input[tset]   = merge_results_tiles( self.input[tset],   input  )
-		self.target[tset]  = merge_results_tiles( self.target[tset],  target )
-		self.product[tset] = merge_results_tiles( self.product[tset], output )
-		self.interp[tset]  = merge_results_tiles( self.interp[tset],  interp )
+		self.input[tset]   = merge_results_tiles( self.input.get(tset),   input  )
+		self.target[tset]  = merge_results_tiles( self.target.get(tset),  target )
+		self.product[tset] = merge_results_tiles( self.product.get(tset), output )
+		self.interp[tset]  = merge_results_tiles( self.interp.get(tset),  interp )
 
 	@exception_handled
 	def apply_network(self, target_data: xa.DataArray ) -> Tuple[Tensor,TensorOrTensors,Tensor]:
