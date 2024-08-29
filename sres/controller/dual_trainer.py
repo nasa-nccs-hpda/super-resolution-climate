@@ -491,7 +491,7 @@ class ModelTrainer(object):
 						self.merge_results( tset, itime,  binput, btarget, boutput, binterp)
 						xyf = batch_data.attrs.get('xyflip', 0)
 						sloss = batch_model_losses[-1]
-						lgm().log(f" **  ** <{self.model_manager.model_name}:{tset.name}> BATCH[{ibatch:3}] TIME[{itime:3}:{ctime:4}] TILES{list(ctile.values())}[F{xyf}]-> Loss= {sloss:5.1f} ({interp_sloss*1000:5.1f}): {(sloss/interp_sloss)*100:.2f}%", display=True )
+						lgm().log(f" **  ** <{self.model_manager.model_name}:{tset.name}> BATCH[{ibatch:3}] TIME[{itime:3}:{ctime:4}] TILES{list(ctile.values())}[F{xyf}]-> Loss= {sloss*1000:5.1f} ({interp_sloss*1000:5.1f}): {(sloss/interp_sloss)*100:.2f}%", display=True )
 						ibatch = ibatch + 1
 						if self.tile_index >= 0: break
 				if self.time_index >= 0: break

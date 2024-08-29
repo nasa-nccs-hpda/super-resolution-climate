@@ -13,7 +13,7 @@ data_structure: ResultStructure = ResultStructure.Tiles
 
 configuration = dict(
 	task = "SST-tiles-48",
-	dataset = "swot_20-60n",
+	dataset = "swot_20-20e",
 	pipeline = "sres",
 	platform = "explore"
 )
