@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Tuple, Mapping, Union
 
 def results_path(varname: str, timestep: int|str, data_structure: ResultStructure, **kwargs ):
 	remove = kwargs.get('remove', False)
+	print( f"cfg.task.keys: {list(cfg().task.keys())}")
 	downsample_factor = float(cfg().task.data_downsample)
 	dss = "" if (downsample_factor == 1.0) else f"_ds-{downsample_factor:.2f}"
 	results_path = f"{cfg().platform.results}/inference/{config()['dataset']}/{config()['task']}/{varname}-{timestep}.{data_structure.value}{dss}.nc"
