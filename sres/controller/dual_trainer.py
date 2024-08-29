@@ -39,7 +39,7 @@ def merge_results_tiles( merged: np.ndarray, result: Tensor ) -> np.ndarray:
 	if result is None: return merged
 	npresult: np.ndarray = result.detach().cpu().numpy()
 	if merged is not None: print( f"merge_results_tiles: merged{merged.shape}, npresult{npresult.shape}")
-	return npresult if (merged is None) else np.concatenate(merged,npresult)
+	return npresult if (merged is None) else np.concatenate((merged,npresult),axis=0)
 
 def smean( data: xarray.DataArray, dims: List[str] = None ) -> str:
 	means: np.ndarray = data.mean(dim=dims).values
