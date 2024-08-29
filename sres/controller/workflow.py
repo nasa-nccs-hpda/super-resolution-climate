@@ -45,7 +45,7 @@ class WorkflowController(object):
 			elif data_structure == ResultStructure.Tiles:
 				image_results: Dict[str,Dict[str,xa.DataArray]] = {}
 				eval_results:  Dict[str,Dict[str,float]] = {}
-				condensed_image_results, condensed_eval_results = self.trainer.evaluate( TSet.Validation, time_index=timestep, save_checkpoint=False, update_model=True, **kwargs )
+				condensed_image_results, condensed_eval_results = self.trainer.evaluate( TSet.Validation, time_index=timestep, update_checkpoint=False, update_model=True, **kwargs )
 				if len(varnames) == 1:
 					image_results = { varnames[0]: { k:v.squeeze() for k,v in condensed_image_results.items() } }
 					eval_results =   { varnames[0]: condensed_eval_results }

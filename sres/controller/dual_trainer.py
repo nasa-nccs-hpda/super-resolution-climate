@@ -134,6 +134,7 @@ class ModelTrainer(object):
 		self.current_losses: Dict[str,float] = {}
 		self.time_index: int = -1
 		self.tile_index: int = -1
+		self.train_state = None
 		self.validation_loss: float = float('inf')
 		self.upsampled_loss: float = float('inf')
 		self.data_timestamps: Dict[TSet,List[Union[datetime, int]]] = {}
@@ -273,12 +274,12 @@ class ModelTrainer(object):
 				self.results_accum.refresh_state()
 			print(" *** No checkpoint loaded: training from scratch *** ")
 		else:
-			train_state = self.checkpoint_manager.load_checkpoint( TSet.Train, update_model=True )
+			self.train_state = self.checkpoint_manager.load_checkpoint( TSet.Train, update_model=True )
 			if self.results_accum is not None:
 				self.results_accum.load_results()
-			epoch0 = train_state.get('epoch', 1 )
-			itime0 = train_state.get( 'itime', 0 )
-			epoch_loss = train_state.get('loss', float('inf'))
+			epoch0 = self.train_state.get('epoch', 1 )
+			itime0 = self.train_state.get( 'itime', 0 )
+			epoch_loss = self.train_state.get('loss', float('inf'))
 			nepochs += epoch0
 
 		self.init_data_timestamps()
@@ -362,11 +363,11 @@ class ModelTrainer(object):
 		torch.manual_seed(seed)
 		torch.cuda.manual_seed(seed)
 		self.time_index = itime
-		train_state = self.checkpoint_manager.load_checkpoint( TSet.Validation, **kwargs )
-		if train_state is None:
+		self.train_state = self.checkpoint_manager.load_checkpoint( TSet.Validation, **kwargs )
+		if self.train_state is None:
 			print( "Error loading checkpoint file, skipping evaluation.")
 			return {},{}
-		self.validation_loss = train_state.get('loss', float('inf'))
+		self.validation_loss = self.train_state.get('loss', float('inf'))
 		proc_start = time.time()
 		lgm().log(f" ##### process_image({tset.value}): time_index={self.time_index} ##### ")
 		self.init_data_timestamps()
@@ -450,14 +451,15 @@ class ModelTrainer(object):
 		torch.cuda.manual_seed(seed)
 		self.time_index = kwargs.get('time_index', self.time_index)
 		self.tile_index = kwargs.get('tile_index', self.tile_index)
-		save_checkpoint = kwargs.get('save_checkpoint', True)
-		train_state = self.checkpoint_manager.load_checkpoint( TSet.Validation, **kwargs )
-		if train_state is None:
-			print( "Error loading checkpoint file, skipping evaluation.")
-			return {}
-		self.validation_loss = train_state.get('loss', float('inf'))
-		epoch = train_state.get( 'epoch', 0 )
-		self.init_data_timestamps()
+		update_checkpoint = kwargs.get('update_checkpoint', True)
+		if update_checkpoint or (self.train_state is None):
+			self.train_state = self.checkpoint_manager.load_checkpoint( TSet.Validation, **kwargs )
+			if self.train_state is None:
+				print( "Error loading checkpoint file, skipping evaluation.")
+				return {}, {}
+			self.validation_loss = self.train_state.get('loss', float('inf'))
+			epoch = self.train_state.get( 'epoch', 0 )
+			self.init_data_timestamps()
 		proc_start = time.time()
 		lgm().log(f" ##### evaluate({tset.value}): time_index={self.time_index}, tile_index={self.tile_index}, nts={len(self.data_timestamps[tset])} ##### ")
 
@@ -499,7 +501,7 @@ class ModelTrainer(object):
 		ntotal_params: int = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
 		if tset == TSet.Validation:
 			if (model_loss < self.validation_loss) or (self.validation_loss == 0.0):
-				if (self.validation_loss > 0.0) and save_checkpoint:
+				if update_checkpoint and (self.validation_loss > 0.0):
 					interp_loss: float = np.array(batch_interp_losses).mean()
 					self.checkpoint_manager.save_checkpoint( epoch, 0, TSet.Validation, model_loss, interp_loss )
 				self.validation_loss = model_loss
