@@ -30,8 +30,9 @@ class VarType(Enum):
 	Constant = 'constant'
 	Dynamic = 'dynamic'
 
-def flip_xarray_axis( data: xa.DataArray, axis: int ) -> xa.DataArray:
-	return data.copy( data=np.flip(data.values,axis=axis))
+def flip_xarray_axis( data: xa.DataArray, axis: Optional[int] ) -> xa.DataArray:
+	flipped_data = np.swapaxes(data.values,-1,-2) if axis is None else np.flip(data.values,axis=axis)
+	return data.copy( data=flipped_data )
 
 def xyflip(batch_data: xa.DataArray) -> xa.DataArray:
 	bflip, flip_index = cfg().task.get('xyflip',False), 0
@@ -45,7 +46,7 @@ def xyflip(batch_data: xa.DataArray) -> xa.DataArray:
 			batch_data = flip_xarray_axis( batch_data, axis=-2 )
 			print(f" ---> FLIP AXIS -2 ")
 		if flip_index // 4 == 1:
-			batch_data = np.swapaxes( batch_data, 0, 1 )
+			batch_data = flip_xarray_axis( batch_data, axis=None )
 			print(f" ---> SWAP AXES ")
 	batch_data.attrs['xyflip'] = flip_index
 	return batch_data
