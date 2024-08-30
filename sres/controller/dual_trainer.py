@@ -341,14 +341,15 @@ class ModelTrainer(object):
 		return self.current_losses
 
 	def record_eval(self, epoch: int, losses: Dict[TSet,float], tset: TSet, **kwargs ):
-		eval_results, eval_losses = self.evaluate( tset, update_model=False, **kwargs )
-		if len(eval_losses) > 0:
-			if self.results_accum is not None:
-				print( f" --->> record {tset.name} eval[{epoch}]: eval_losses={eval_losses}, losses={losses}")
-				self.results_accum.record_losses( tset, epoch, eval_losses['model'], eval_losses['interpolated'] )
-			if kwargs.get('flush',True):
-				self.results_accum.flush()
-		return eval_losses
+		if cfg().task.ttsplit.get( tset.value, 0.0 ) > 0.0:
+			eval_results, eval_losses = self.evaluate( tset, update_model=False, **kwargs )
+			if len(eval_losses) > 0:
+				if self.results_accum is not None:
+					print( f" --->> record {tset.name} eval[{epoch}]: eval_losses={eval_losses}, losses={losses}")
+					self.results_accum.record_losses( tset, epoch, eval_losses['model'], eval_losses['interpolated'] )
+				if kwargs.get('flush',True):
+					self.results_accum.flush()
+			return eval_losses
 
 	def init_data_timestamps(self):
 		if len(self.data_timestamps) == 0:
