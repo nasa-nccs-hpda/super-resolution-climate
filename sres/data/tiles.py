@@ -23,10 +23,7 @@ class TileIterator(object):
         self.batch_losses(ltype).append( loss )
 
     def accumulate_loss(self, ltype: str):
-        print( f"accumulate_loss({ltype}), losses = {self._batch_losses}" )
         accum_loss = np.array(self.batch_losses(ltype)).mean()
-        if ltype == "interpolated":
-            print(f"accumulate_loss({ltype}), accum_loss = {accum_loss}, batch losses = {self._batch_losses}")
         self.clear_batch_losses(ltype)
         return accum_loss
 
