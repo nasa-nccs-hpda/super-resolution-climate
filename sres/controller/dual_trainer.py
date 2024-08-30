@@ -310,7 +310,7 @@ class ModelTrainer(object):
 					if interp_loss:
 						binterp = upsample(binput)
 						[interp_sloss, interp_multilevel_mloss] = self.loss(btarget, binterp)
-						tile_iter.register_loss('interpolted', interp_sloss)
+						tile_iter.register_loss('interpolated', interp_sloss)
 					stile = list(ctile.values())
 					xyf = batch_data.attrs.get('xyflip',0)
 					lgm().log(f" ** <{self.model_manager.model_name}> E({epoch:3}/{nepochs}) TIME[{itime:3}:{ctime:4}] TILES[{stile[0]:4}:{stile[1]:4}][F{xyf}]-> Loss= {sloss*1000:6.2f} ({interp_sloss*1000:6.2f}): {(sloss/interp_sloss)*100:.2f}%", display=True)
