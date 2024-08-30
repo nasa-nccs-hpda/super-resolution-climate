@@ -161,7 +161,7 @@ class ResultImagePlot(Plot):
 
 	def get_subplot_title(self, ptype: str) -> str:
 		loss: float = None
-		if   ptype == "interp": loss = self.losses.get("interp",0.0)
+		if   ptype == "interpolated": loss = self.losses.get("interpolated",0.0)
 		elif ptype == "output": loss = self.losses.get('model', 0.0)
 		return ptype if (loss is None) else f"{ptype}, loss={loss*1000:.3f}"
 
