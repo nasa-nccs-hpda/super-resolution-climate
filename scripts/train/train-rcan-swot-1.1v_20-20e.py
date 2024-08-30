@@ -3,8 +3,8 @@ from sres.controller.workflow import WorkflowController
 
 cname: str = "sres"
 models: List[str] = [ 'rcan-10-20-64' ]
-ccustom: Dict[str,Any] = { 'task.nepochs': 100  }
-refresh =  False
+ccustom: Dict[str,Any] = { 'task.nepochs': 10  }
+refresh =  True
 
 configuration = dict(
 	task = "SST-tiles-48",
