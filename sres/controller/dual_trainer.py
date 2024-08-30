@@ -321,7 +321,7 @@ class ModelTrainer(object):
 				if binput is not None:   self.input[tset] = binput.detach().cpu().numpy()
 				if btarget is not None:  self.target[tset] = btarget.detach().cpu().numpy()
 				if boutput is not None:  self.product[tset] = boutput.detach().cpu().numpy()
-				[epoch_loss, interp_loss] = [ tile_iter.accumulate_loss(ltype) for ltype in ['model', 'interp']]
+				[epoch_loss, interp_loss] = [ tile_iter.accumulate_loss(ltype) for ltype in ['model', 'interpolated']]
 				self.checkpoint_manager.save_checkpoint(epoch, itime, TSet.Train, epoch_loss, interp_loss )
 				self.results_accum.record_losses( TSet.Train, epoch-1+itime/nts, epoch_loss, interp_loss, flush=((itime+1) % lossrec_flush_period == 0) )
 
@@ -345,7 +345,7 @@ class ModelTrainer(object):
 		if len(eval_losses) > 0:
 			if self.results_accum is not None:
 				print( f" --->> record {tset.name} eval[{epoch}]: eval_losses={eval_losses}, losses={losses}")
-				self.results_accum.record_losses( tset, epoch, eval_losses['model'], eval_losses['interp'] )
+				self.results_accum.record_losses( tset, epoch, eval_losses['model'], eval_losses['interpolated'] )
 			if kwargs.get('flush',True):
 				self.results_accum.flush()
 		return eval_losses
