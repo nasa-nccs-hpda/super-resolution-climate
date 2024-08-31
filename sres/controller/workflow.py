@@ -18,7 +18,7 @@ class WorkflowController(object):
 	def __init__(self, cname: str, configuration: Dict[str,Any], **kwargs):
 		self.cname = cname
 		argparser = argparse.ArgumentParser(description=f'Execute workflow {self.cname}')
-		argparser.add_argument('-r', '--refresh', action='store_true' )
+		argparser.add_argument('-r', '--refresh', action='store_true', help="Refresh workflow by deleting existing checkpoints and learning stats" )
 		self.args: argparse.Namespace = argparser.parse_args()
 		self.seed = kwargs.get('seed', int( time.time()/60 ) )
 		self.refresh_state: bool = self.args.refresh
