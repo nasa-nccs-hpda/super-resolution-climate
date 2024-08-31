@@ -13,18 +13,16 @@ from sres.view.plot.training import TrainingPlot
 from sres.view.plot.base import Plot
 import argparse
 
-
-
-
 class WorkflowController(object):
 
 	def __init__(self, cname: str, configuration: Dict[str,Any], **kwargs):
 		self.cname = cname
-		self.argparser = argparse.ArgumentParser(description=f'Execute workflow {self.cname}')
-		self.argparser.add_argument('-r', '--refresh', action='store_true' )
-		print( self.argparser.parse_args() )
+		argparser = argparse.ArgumentParser(description=f'Execute workflow {self.cname}')
+		argparser.add_argument('-r', '--refresh', action='store_true' )
+		self.args: argparse.Namespace = argparser.parse_args()
 		self.seed = kwargs.get('seed', int( time.time()/60 ) )
-		self.refresh_state = False
+		self.refresh_state: bool = self.args.refresh
+		print(f"WorkflowController: refresh = {self.refresh_state}")
 		self.interp_loss = kwargs.get('interp_loss', False)
 		self.config: ConfigContext = None
 		self.trainer: ModelTrainer = None
