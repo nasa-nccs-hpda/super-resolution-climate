@@ -22,7 +22,6 @@ class WorkflowController(object):
 		self.args: argparse.Namespace = argparser.parse_args()
 		self.seed = kwargs.get('seed', int( time.time()/60 ) )
 		self.refresh_state: bool = self.args.refresh
-		print(f"WorkflowController: refresh = {self.refresh_state}")
 		self.interp_loss = kwargs.get('interp_loss', False)
 		self.config: ConfigContext = None
 		self.trainer: ModelTrainer = None
