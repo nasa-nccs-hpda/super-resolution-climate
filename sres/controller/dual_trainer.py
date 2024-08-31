@@ -268,6 +268,7 @@ class ModelTrainer(object):
 		interp_loss = kwargs.get('interp_loss', False)
 		seed = kwargs.get('seed', 4456)
 		lossrec_flush_period = 32
+		print(f"train: refresh_state = {refresh_state}")
 
 		torch.manual_seed(seed)
 		torch.cuda.manual_seed(seed)
