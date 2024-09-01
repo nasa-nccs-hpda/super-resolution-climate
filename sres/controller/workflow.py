@@ -17,30 +17,34 @@ class WorkflowController(object):
 
 	def __init__(self, cname: str, configuration: Dict[str,Any], **kwargs):
 		self.cname = cname
-		argparser = argparse.ArgumentParser(description=f'Execute workflow {self.cname}')
-		argparser.add_argument('-r', '--refresh', action='store_true', help="Refresh workflow by deleting existing checkpoints and learning stats" )
-		self.args: argparse.Namespace = argparser.parse_args()
 		self.seed = kwargs.get('seed', int( time.time()/60 ) )
-		self.refresh_state: bool = self.args.refresh
 		self.interp_loss = kwargs.get('interp_loss', False)
 		self.config: ConfigContext = None
 		self.trainer: ModelTrainer = None
 		self.plot: Plot = None
 		self.model = None
-		ConfigContext.set_defaults( **configuration )
+		ConfigContext.set_defaults(**configuration)
+
 
 	def train(self, models: List[str], **kwargs):
 		for model in models:
 			with ConfigContext(self.cname, model=model, **kwargs) as cc:
 				try:
 					self.config = cc
+					args: argparse.Namespace = self.get_args()
 					self.trainer = ModelTrainer(cc)
-					self.trainer.train(refresh_state=self.refresh_state, seed=self.seed, interp_loss=self.interp_loss)
+					self.trainer.train( args.nepochs, args.refresh, seed=self.seed, interp_loss=self.interp_loss )
 				except Exception as e:
 					lgm().exception( "Exception while training model: %s" % str(e) )
 					save_memory_snapshot()
 
 				lgm().log(f"Completed training model: {model}")
+
+	def get_args(self) -> argparse.Namespace:
+		argparser = argparse.ArgumentParser(description=f'Execute workflow {self.cname}')
+		argparser.add_argument('-r', '--refresh', action='store_true', help="Refresh workflow by deleting existing checkpoints and learning stats")
+		argparser.add_argument('-ne', '--nepochs', nargs='?', default=cfg().task.nepochs, type=int, help="Number of epochs to run training")
+		return argparser.parse_args()
 
 	def inference(self, timestep: int, data_structure: ResultStructure,  **kwargs)-> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]] ]:
 			varnames = self.trainer.target_variables

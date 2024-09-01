@@ -262,16 +262,15 @@ class ModelTrainer(object):
 	def get_ml_interp(self, tset: TSet) -> xa.DataArray:
 		return self.to_xa( self.interp[tset] )
 
-	def train(self, **kwargs) -> Dict[str, float]:
-		if cfg().task['nepochs'] == 0: return {}
-		refresh_state = kwargs.get('refresh_state', False)
+	def train(self, nepochs: int, refresh_state: bool, **kwargs) -> Dict[str, float]:
+		if nepochs == 0: return {}
 		interp_loss = kwargs.get('interp_loss', False)
 		seed = kwargs.get('seed', 4456)
 		lossrec_flush_period = 32
 		torch.manual_seed(seed)
 		torch.cuda.manual_seed(seed)
 		self.scheduler = kwargs.get('scheduler', None)
-		epoch0, itime0, epoch_loss, nepochs, loss_history, eval_losses, tset, interp_sloss = 1, 0, 0.0, cfg().task.nepochs,  [], {}, TSet.Train, 0.0
+		epoch0, itime0, epoch_loss, loss_history, eval_losses, tset, interp_sloss = 1, 0, 0.0,  [], {}, TSet.Train, 0.0
 		train_start = time.time()
 		if refresh_state:
 			self.checkpoint_manager.clear_checkpoints()
