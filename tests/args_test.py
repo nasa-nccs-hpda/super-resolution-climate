@@ -3,13 +3,14 @@ from typing import Any, Dict, List, Tuple, Type, Optional, Union
 from sres.base.util.config import ConfigContext, cfg, config
 
 cname: str = "sres"
-model = 'rcan-10-20-64'
+
 
 configuration = dict(
 	task = "SST-tiles-48",
 	dataset = "swot_20-20e",
 	pipeline = "sres",
-	platform = "explore"
+	platform = "explore",
+	model = 'rcan-10-20-64'
 )
 
 def get_args(cname) -> argparse.Namespace:
@@ -18,7 +19,7 @@ def get_args(cname) -> argparse.Namespace:
 	argparser.add_argument('-ne', '--nepochs', nargs='?', default=cfg().task.nepochs, type=int, help="Number of epochs to run training")
 	return argparser.parse_args()
 
-with ConfigContext( cname, model=model ) as cc:
+with ConfigContext( cname ) as cc:
 	args = get_args(cname)
 	print( "Refresh = " + str(args.refresh))
 	print( "NEpochs = " + str(args.nepochs))
