@@ -3,8 +3,6 @@ from typing import Any, Dict, List, Tuple, Type, Optional, Union
 from sres.base.util.config import ConfigContext, cfg, config
 
 cname: str = "sres"
-
-
 configuration = dict(
 	task = "SST-tiles-48",
 	dataset = "swot_20-20e",
@@ -12,6 +10,7 @@ configuration = dict(
 	platform = "explore",
 	model = 'rcan-10-20-64'
 )
+ConfigContext.set_defaults(**configuration)
 
 def get_args(cname) -> argparse.Namespace:
 	argparser = argparse.ArgumentParser(description=f'Execute workflow {cname}')
