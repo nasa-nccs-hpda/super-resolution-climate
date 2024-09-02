@@ -327,7 +327,7 @@ class ModelTrainer(object):
 
 			if self.scheduler is not None:
 				self.scheduler.step()
-{}
+
 			epoch_time = (time.time() - epoch_start)/60.0
 			lgm().log(f'Epoch Execution time: {epoch_time:.1f} min, train-loss: {epoch_loss:.4f}', display=True)
 			self.record_eval( epoch, {TSet.Train: epoch_loss}, TSet.Validation )
