@@ -296,13 +296,15 @@ class ModelTrainer(object):
 			for itime in range (itime0,nts):
 				ctime  = self.data_timestamps[TSet.Train][itime]
 				timeslice: xa.DataArray = self.load_timeslice(ctime)
+				print(f"TRAIN TIME({ctime}): timeslice={None if timeslice is None else timeslice.shape}")
 				tile_iter = TileIterator.get_iterator( ntiles=timeslice.sizes['tiles'], randomize=True )
 				for ctile in iter(tile_iter):
 					batch_data: Optional[xa.DataArray] = self.get_srbatch(ctile,ctime)
+					print( f"TRAIN TILE({ctile}): batch={None if batch_data is None else batch_data.shape}" )
 					if batch_data is None: break
 					self.optimizer.zero_grad()
 					binput, boutput, btarget = self.apply_network( batch_data )
-					lgm().log(f"  ->apply_network: inp{binput.shape} target{ts(btarget)} prd{ts(boutput)}" )
+					lgm().log(f"  ->apply_network: inp{binput.shape} target{ts(btarget)} prd{ts(boutput)}", display=True )
 					[sloss, mloss] = self.loss(boutput,btarget)
 					tile_iter.register_loss( 'model', sloss )
 					if interp_loss:
@@ -325,7 +327,7 @@ class ModelTrainer(object):
 
 			if self.scheduler is not None:
 				self.scheduler.step()
-
+{}
 			epoch_time = (time.time() - epoch_start)/60.0
 			lgm().log(f'Epoch Execution time: {epoch_time:.1f} min, train-loss: {epoch_loss:.4f}', display=True)
 			self.record_eval( epoch, {TSet.Train: epoch_loss}, TSet.Validation )
