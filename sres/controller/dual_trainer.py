@@ -291,8 +291,9 @@ class ModelTrainer(object):
 			epoch_start = time.time()
 			self.model.train()
 
-			lgm().log(f"  ----------- Epoch {epoch}/{nepochs}   ----------- ", display=True )
+
 			binput, boutput, btarget, nts = None, None, None, len(self.data_timestamps[TSet.Train])
+			lgm().log(f"  ----------- Epoch {epoch}/{nepochs}  nts={nts} ----------- ", display=True )
 			for itime in range (itime0,nts):
 				ctime  = self.data_timestamps[TSet.Train][itime]
 				timeslice: xa.DataArray = self.load_timeslice(ctime)
@@ -304,7 +305,7 @@ class ModelTrainer(object):
 					if batch_data is None: break
 					self.optimizer.zero_grad()
 					binput, boutput, btarget = self.apply_network( batch_data )
-					lgm().log(f"  ->apply_network: inp{binput.shape} target{ts(btarget)} prd{ts(boutput)}", display=True )
+					lgm().log(f"  TRAIN->apply_network: inp{ts(binput)} target{ts(btarget)} prd{ts(boutput)}", display=True )
 					[sloss, mloss] = self.loss(boutput,btarget)
 					tile_iter.register_loss( 'model', sloss )
 					if interp_loss:
