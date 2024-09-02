@@ -331,6 +331,7 @@ class ModelTrainer(object):
 			lgm().log(f'Epoch Execution time: {epoch_time:.1f} min, train-loss: {epoch_loss:.4f}', display=True)
 			self.record_eval( epoch, {TSet.Train: epoch_loss}, TSet.Validation )
 			save_memory_snapshot()
+			itime0 = 0
 
 		train_time = time.time() - train_start
 		ntotal_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)

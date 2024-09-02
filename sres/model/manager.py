@@ -232,7 +232,7 @@ class ResultsAccumulator(object):
 
 	def record_losses(self, tset: TSet, epoch: float, loss: float, ref_loss: float, flush=False):
 		rr: ResultRecord = ResultRecord(tset, epoch, loss, ref_loss )
-		print( f"record_losses({tset.value}): epoch={epoch}, loss={loss}, ref_loss={ref_loss}")
+		print( f"record_losses({tset.value}): epoch={epoch}, loss={loss*1000:.2f}, ref_loss={ref_loss*1000:.2f}")
 		self.results.append( rr )
 		if flush: self.flush()
 
