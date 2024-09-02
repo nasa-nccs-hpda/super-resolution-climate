@@ -290,8 +290,6 @@ class ModelTrainer(object):
 		for epoch in range(epoch0,nepochs):
 			epoch_start = time.time()
 			self.model.train()
-
-
 			binput, boutput, btarget, nts = None, None, None, len(self.data_timestamps[TSet.Train])
 			lgm().log(f"  ----------- Epoch {epoch}/{nepochs}  nts={nts} ----------- ", display=True )
 			for itime in range (itime0,nts):
@@ -469,7 +467,7 @@ class ModelTrainer(object):
 			epoch = self.train_state.get( 'epoch', 0 )
 			self.init_data_timestamps()
 		proc_start = time.time()
-		lgm().log(f" ##### evaluate({tset.value}): time_index={self.time_index}, tile_index={self.tile_index}, nts={len(self.data_timestamps[tset])} ##### ")
+		lgm().log(f" ##### evaluate({tset.value}): time_index={self.time_index}, tile_index={self.tile_index}, nts={len(self.data_timestamps[tset])} ##### ",display=True)
 
 		batch_model_losses, batch_interp_losses, interp_sloss = [], [], 0.0
 		binput, boutput, btarget, binterp, ibatch = None, None, None, None, 0
