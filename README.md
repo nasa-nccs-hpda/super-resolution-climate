@@ -33,17 +33,18 @@ The *ccustom* dict is used to override individual config values.  The *cname* pa
 
 ## Training
 
-The scripts under *super-resolution-climate/scripts* are used to train various super-resolution networks with various configurations. The notebook 
+The scripts under *super-resolution-climate/scripts/train* are used to train various super-resolution networks with various configurations. The notebook 
 [super-resolution-climate/notebooks/plot_training.ipynb](./notebooks/plot_training.ipynb) is used to display a plot of 
 loss vs. epochs for the configured training instance.
 
 ## Inference
 
-The notebooks in [super-resolution-climate/notebooks](./notebooks) that plot the training results 
-will execute the inference engine and display the result whenever the time or tile 
-indices change (via sliders at the bottom).  The notebook [plot_result_tiles.ipynb](./notebooks/plot_result_tiles.ipynb) is 
-used to explore the super-resolution results for individual tiles, and notebook [plot_result_images.ipynb](./notebooks/plot_result_images.ipynb) is 
-used to display the assembled tiles for each region.
+The scripts under *super-resolution-climate/scripts/inference* are used to run inference for the trained super-resolution networks. 
+
+## Visualization
+
+The notebook [plot_result_tiles.ipynb](./notebooks/plot_result_tiles.ipynb) is used to explore the super-resolution results for individual tiles, 
+and notebook [plot_result_images.ipynb](./notebooks/plot_result_images.ipynb) is used to display the results as assembled images for each region.
 
 
 
