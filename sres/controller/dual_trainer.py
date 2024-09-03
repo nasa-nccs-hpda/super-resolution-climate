@@ -295,11 +295,11 @@ class ModelTrainer(object):
 			for itime in range (itime0,nts):
 				ctime  = self.data_timestamps[TSet.Train][itime]
 				timeslice: xa.DataArray = self.load_timeslice(ctime)
-				print(f"TRAIN TIME({ctime}): timeslice={None if timeslice is None else timeslice.shape}")
+				lgm().log(f"TRAIN TIME({ctime}): timeslice={None if timeslice is None else timeslice.shape}")
 				tile_iter = TileIterator.get_iterator( ntiles=timeslice.sizes['tiles'], randomize=True )
 				for ctile in iter(tile_iter):
 					batch_data: Optional[xa.DataArray] = self.get_srbatch(ctile,ctime)
-					print( f"TRAIN TILE({ctile}): batch={None if batch_data is None else batch_data.shape}" )
+					lgm().log( f"TRAIN TILE({ctile}): batch={None if batch_data is None else batch_data.shape}" )
 					if batch_data is None: break
 					self.optimizer.zero_grad()
 					binput, boutput, btarget = self.apply_network( batch_data )
@@ -312,7 +312,7 @@ class ModelTrainer(object):
 						tile_iter.register_loss('interpolated', interp_sloss)
 					stile = list(ctile.values())
 					xyf = batch_data.attrs.get('xyflip',0)
-					lgm().log(f" ** <{self.model_manager.model_name}> E({epoch:3}/{nepochs}) TIME[{itime:3}:{ctime:4}] TILES[{stile[0]:4}:{stile[1]:4}][F{xyf}]-> Loss= {sloss*1000:6.2f} ({interp_sloss*1000:6.2f}): {(sloss/interp_sloss)*100:.2f}%", display=True)
+					lgm().log(f" ** <{self.model_manager.model_name}> TRAIN E({epoch:3}/{nepochs}) TIME[{itime:3}:{ctime:4}] TILES[{stile[0]:4}:{stile[1]:4}][F{xyf}]-> Loss= {sloss*1000:6.2f} ({interp_sloss*1000:6.2f}): {(sloss/interp_sloss)*100:.2f}%", display=True)
 					mloss.backward()
 					self.optimizer.step()
 
