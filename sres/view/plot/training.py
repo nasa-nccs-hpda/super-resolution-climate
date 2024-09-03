@@ -38,8 +38,7 @@ class TrainingPlot(Plot):
 		self.axs.set_yscale(self.yscale)
 		interp_loss = self.min_loss.get('ref-valid',0.0)*10
 		model_loss = self.min_loss.get('model-valid',0.0)*1000
-		interp_pct = (model_loss/interp_loss)
-		self.axs.set_title(f"Model '{self.model}':  Validation Loss = {self.min_loss.get('model-valid',-1):.1f} ({interp_pct:.1f}%)")
+		self.axs.set_title(f"Model '{self.model}':  Validation Loss = {self.min_loss.get('model-valid',-1):.1f} ({model_loss/interp_loss:.1f}%)")
 		self.axs.legend()
 		self.fig.canvas.draw_idle()
 		return ipw.VBox( [self.fig.canvas] )
