@@ -365,6 +365,13 @@ class ModelTrainer(object):
 			tile_range = range(ctile['start'], ctile['end'])
 			return self.tile_index in tile_range
 
+	def to_zarr(self, **kwargs):
+		cfg().task['xyflip'] = False
+		ctimes: List[TimeType] = self.get_dataset().get_batch_time_coords()
+		for ctime in ctimes:
+			timeslice: xa.DataArray = self.load_timeslice(ctime)
+			print( f"Loaded timeslice[{timeslice.dims}], shape = {timeslice.shape}")
+
 	def process_image(self, tset: TSet, itime: int, **kwargs) -> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
 		seed = kwargs.get('seed', 333)
 		cfg().task['xyflip'] = False

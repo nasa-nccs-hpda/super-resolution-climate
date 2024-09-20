@@ -46,6 +46,9 @@ class WorkflowController(object):
 		argparser.add_argument('-ne', '--nepochs', nargs='?', default=cfg().task.nepochs, type=int, help="Number of epochs to run training")
 		return argparser.parse_args()
 
+	def to_zarr(self, timestep: int, **kwargs ):
+		self.trainer.to_zarr( timestep, **kwargs )
+
 	def inference(self, timestep: int, data_structure: ResultStructure,  **kwargs)-> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]] ]:
 			varnames = self.trainer.target_variables
 			if   data_structure == ResultStructure.Image:
