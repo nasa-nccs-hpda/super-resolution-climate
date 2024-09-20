@@ -19,6 +19,4 @@ configuration = dict(
 
 controller = WorkflowController( cname, configuration )
 controller.initialize( cname, model, **ccustom )
-
-for timestep in list(range(*time_index_bounds)):
-	controller.to_zarr( timestep )
+controller.to_zarr( )
