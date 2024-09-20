@@ -153,6 +153,11 @@ class SWOTRawDataLoader(SRRawDataLoader):
 			self.time_index = time_index
 		return self.timeslice
 
+	def load_region_data(self, time_index: int, **kwargs) -> xa.DataArray:
+		vardata: List[np.ndarray] = [self.load_file(varname, time_index) for varname in self.varnames]
+		raw_data: np.ndarray = np.concatenate(vardata, axis=0)
+		return xa.DataArray(raw_data, dims=["channels", "y", "x"], coords=dict(channels=self.varnames) )
+
 	def select_batch( self, tile_range: Tuple[int,int]  ) -> Optional[xa.DataArray]:
 		ntiles: int = self.timeslice.shape[0]
 		if tile_range[0] < ntiles:

@@ -236,6 +236,9 @@ class ModelTrainer(object):
 	def load_timeslice(self, ctime: TimeType, **kwargs) -> Optional[xarray.DataArray]:
 		return self.get_dataset().load_timeslice( ctime, **kwargs )
 
+	def load_region_data(self, ctime: TimeType, **kwargs) -> Optional[xarray.DataArray]:
+		return self.get_dataset().load_region_data( ctime, **kwargs )
+
 	@property
 	def batch_domain(self) -> batchDomain:
 		return self.get_dataset().batch_domain
@@ -369,7 +372,7 @@ class ModelTrainer(object):
 		cfg().task['xyflip'] = False
 		ctimes: List[TimeType] = self.get_dataset().get_batch_time_coords()
 		for ctime in ctimes:
-			timeslice: xa.DataArray = self.load_timeslice(ctime)
+			timeslice: xa.DataArray = self.load_region_data(ctime)
 			print( f"Loaded timeslice({ctime}): dims[{timeslice.dims}], shape{timeslice.shape}\n")
 
 	def process_image(self, tset: TSet, itime: int, **kwargs) -> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:

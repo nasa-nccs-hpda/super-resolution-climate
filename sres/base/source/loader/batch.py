@@ -24,6 +24,9 @@ class SRDataLoader(object):
 	def load_timeslice(self, time_index: int, **kwargs) -> xa.DataArray:
 		raise NotImplementedError("SRDataLoader:load_timeslice")
 
+	def load_region_data(self, time_index: int, **kwargs) -> xa.DataArray:
+		raise NotImplementedError("SRDataLoader:load_region_data" )
+
 	def load_tile_batch(self, tile_range: Tuple[int,int] ) -> Optional[xa.DataArray]:
 		raise NotImplementedError("SRDataLoader:load_tile_batch")
 

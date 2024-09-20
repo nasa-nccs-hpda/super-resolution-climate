@@ -144,6 +144,9 @@ class BatchDataset(object):
     def load_timeslice(self, ctime: TimeType, **kwargs) -> Optional[xa.DataArray]:
         return self.srbatch.load_timeslice( ctime, **kwargs )
 
+    def load_region_data(self, ctime: TimeType, **kwargs) -> Optional[xa.DataArray]:
+        return self.srbatch.load_region_data( ctime, **kwargs )
+
     def get_current_batch_array(self) -> xa.DataArray:
         return self.srbatch.current_batch
 

@@ -277,6 +277,9 @@ class SRBatch:
 	def load_timeslice(self, ctime: Union[datetime, int], **kwargs) -> xa.DataArray:
 		return self.data_loader.load_timeslice(ctime, **kwargs)
 
+	def load_region_data(self, ctime: Union[datetime, int], **kwargs) -> xa.DataArray:
+		return self.data_loader.load_region_data(ctime, **kwargs)
+
 	def load_batch(self, ctile: Dict[str,int], ctime: Union[datetime,int]) -> Optional[xa.DataArray]:
 		if self.batch_domain == batchDomain.Time:
 			if type(ctime) == datetime:

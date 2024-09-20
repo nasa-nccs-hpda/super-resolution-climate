@@ -21,6 +21,9 @@ class SWOTDataLoader(SRDataLoader):
 	def load_timeslice(self, time_index: int, **kwargs) -> xa.DataArray:
 		return self.loader.load_timeslice(time_index, **kwargs)
 
+	def load_region_data(self, time_index: int, **kwargs) -> xa.DataArray:
+		return self.loader.load_region_data(time_index, **kwargs)
+
 	def load_tile_batch(self, tile_range: Tuple[int,int] ) -> Optional[xa.DataArray]:
 		tile_batch: xa.DataArray = self.loader.select_batch( tile_range )
 		return tile_batch
