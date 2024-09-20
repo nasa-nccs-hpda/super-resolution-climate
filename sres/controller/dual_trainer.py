@@ -377,7 +377,8 @@ class ModelTrainer(object):
 		name = kwargs.get( "name", ConfigContext.defaults.get('dataset') )
 		zstore = f"{cfg().platform.processed}/{name}.zarr"
 		for ctime in ctimes:
-			timeslice: xa.DataArray = self.load_region_data(ctime).expand_dims( time = np.array([np.datetime64(ctime.isoformat())], dtype=np.datetime64) )
+			tval = np.datetime64(ctime.isoformat()) if (type(ctime) == datetime) else ctime
+			timeslice: xa.DataArray = self.load_region_data(ctime).expand_dims( time = np.array([tval] ) )
 			print( f"Saving timeslice({drepr(ctime)}) to zarr store({name}): dims[{timeslice.dims}], shape{timeslice.shape}")
 			timeslice.to_zarr( store=zstore, append_dim="time")
 
