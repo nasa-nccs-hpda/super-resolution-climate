@@ -1,6 +1,6 @@
 import torch, math
 import xarray, traceback, random
-from datetime import datetime
+from datetime import datetime, timedelta
 from torch import Tensor
 from typing import Any, Dict, List, Tuple, Union, Sequence, Optional
 from sres.base.util.config import ConfigContext, cfg
@@ -11,7 +11,7 @@ from sres.base.util.config import cdelta, cfg, cval, get_data_coords, dateindex
 from sres.base.gpu import set_device
 from sres.base.util.array import array2tensor, downsample, upsample
 from sres.data.batch import BatchDataset
-from sres.base.util.dates import TimeType
+from sres.base.util.dates import TimeType, datetime_range, drepr
 from sres.model.manager import SRModels, ResultsAccumulator
 from sres.base.util.logging import lgm, exception_handled
 from sres.controller.checkpoints import CheckpointManager
@@ -368,12 +368,15 @@ class ModelTrainer(object):
 			tile_range = range(ctile['start'], ctile['end'])
 			return self.tile_index in tile_range
 
-	def to_zarr(self, **kwargs):
+	def to_zarr(self, start_date: datetime, end_date: datetime, dt: timedelta, **kwargs):
 		cfg().task['xyflip'] = False
-		ctimes: List[TimeType] = self.get_dataset().get_batch_time_coords()
+		ctimes: List[datetime] = datetime_range( start_date, end_date, dt )
+		name = kwargs.get( "name", ConfigContext.defaults.get('dataset') )
+		zstore = f"{cfg().platform.processed}/{name}.zarr"
 		for ctime in ctimes:
-			timeslice: xa.DataArray = self.load_region_data(ctime)
-			print( f"Loaded timeslice({ctime}): dims[{timeslice.dims}], shape{timeslice.shape}\n")
+			timeslice: xa.DataArray = self.load_region_data(ctime).expand_dims( time = np.array([np.datetime64(ctime.isoformat())], dtype=np.datetime64) )
+			print( f"Saving timeslice({drepr(ctime)}) to zarr store({name}): dims[{timeslice.dims}], shape{timeslice.shape}")
+			timeslice.to_zarr( store=zstore, append_dim="time")
 
 	def process_image(self, tset: TSet, itime: int, **kwargs) -> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
 		seed = kwargs.get('seed', 333)

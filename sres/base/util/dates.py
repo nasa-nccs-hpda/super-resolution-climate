@@ -24,37 +24,29 @@ def dstr(d: datetime) -> str:
 def drepr(d: datetime) -> str:
 	return f'{d.year}-{d.month}-{d.day}'
 
-def next(d: datetime) -> datetime:
-	return d + timedelta(days=1)
-
 def date_list( start: Optional[datetime], num_days: int )-> List[datetime]:
 	dates: List[datetime] = []
 	if (start is not None) and (num_days > 0):
 		d0: datetime = start
 		for iday in range(0,num_days):
 			dates.append(d0)
-			d0 = next(d0)
+			d0 = d0 + timedelta(days=1)
 	return dates
 
 def date_bounds( start: datetime, num_days: int )-> Tuple[datetime,datetime]:
 	return start, start+timedelta(days=num_days)
 
-def cfg_date_range( task_config )-> List[datetime]:
-	start = date( str(task_config['start_date']) )
-	end = date( str(task_config['end_date']) )
-	return date_range( start, end )
-
-def date_range( start: datetime, end: datetime )-> List[datetime]:
+def datetime_range( start: datetime, end: datetime, dt:timedelta)-> List[datetime]:
 	d0: datetime = start
 	dates: List[datetime] = []
 	while d0 < end:
 		dates.append( d0 )
-		d0 = next(d0)
+		d0 = d0 + dt
 	return dates
 
-def year_range( y0: int, y1: int, **kwargs )-> List[datetime]:
+def year_range( y0: int, y1: int, dt_days=1, **kwargs )-> List[datetime]:
 	randomize: bool = kwargs.get( 'randomize', False )
-	rlist = date_range( datetime(y0,1,1), datetime(y1,1,1) )
+	rlist = datetime_range( datetime(y0,1,1), datetime(y1,1,1), timedelta(days=dt_days))
 	if randomize: random.shuffle(rlist)
 	return rlist
 

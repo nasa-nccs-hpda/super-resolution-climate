@@ -23,7 +23,7 @@ class batchDomain(Enum):
 
 def nbatches( task_config ) -> int:
 	nbs: Dict[str,int] = task_config.get('nbatches', None)
-	if nbs is not None: return nbs[tset.value]
+	if nbs is not None: return nbs[task_config.value]
 	return 0
 
 def batches_date_range( task_config )-> List[datetime]:

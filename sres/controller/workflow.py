@@ -5,6 +5,7 @@ from sres.controller.dual_trainer import ModelTrainer
 from sres.base.util.logging import lgm, exception_handled, log_timing
 from sres.data.inference import save_inference_results, load_inference_results
 from sres.base.gpu import save_memory_snapshot
+from datetime import datetime, timedelta
 from sres.controller.config import TSet, ResultStructure
 from typing import Any, Dict, List, Tuple
 from sres.view.plot.tiles  import ResultTilePlot
@@ -46,8 +47,8 @@ class WorkflowController(object):
 		argparser.add_argument('-ne', '--nepochs', nargs='?', default=cfg().task.nepochs, type=int, help="Number of epochs to run training")
 		return argparser.parse_args()
 
-	def to_zarr(self, **kwargs ):
-		self.trainer.to_zarr( **kwargs )
+	def to_zarr(self, start_date: datetime, end_date: datetime, dt: timedelta, **kwargs ):
+		self.trainer.to_zarr( start_date, end_date, dt, **kwargs )
 
 	def inference(self, timestep: int, data_structure: ResultStructure,  **kwargs)-> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]] ]:
 			varnames = self.trainer.target_variables
