@@ -5,7 +5,6 @@ from sres.base.io.loader import ncFormat
 from ...controller.config import TSet
 from omegaconf import DictConfig, OmegaConf
 from xarray.core.dataset import DataVariables
-from nvidia.dali import fn
 from enum import Enum
 from glob import glob
 from typing import Any, Mapping, Sequence, Tuple, Union, List, Dict, Literal, Optional
@@ -88,7 +87,7 @@ class SWOTRawDataLoader(SRRawDataLoader):
 			return norm_stats
 
 	def _compute_normalization(self) -> xa.Dataset:
-		time_indices = self.get_batch_time_indices()
+		time_indices = self.get_dset_time_indices()
 		norm_data: Dict[Tuple[str,int], NormData] = {}
 		print( f"Computing norm stats (no stats file found at {self.norm_data_file})")
 		for tidx in time_indices:
@@ -123,7 +122,7 @@ class SWOTRawDataLoader(SRRawDataLoader):
 	def global_norm_stats(self) -> xa.Dataset:
 		return self.norm_stats.map( globalize_norm )
 
-	def get_batch_time_indices(self):
+	def get_dset_time_indices(self):
 		cfg().dataset.index = "*"
 		cfg().dataset['varname'] = list(self.varnames.keys())[0]
 		files = [ fpath.split("/")[-1] for fpath in  glob( filepath() ) ]

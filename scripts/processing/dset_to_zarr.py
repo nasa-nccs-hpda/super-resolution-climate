@@ -8,9 +8,6 @@ eval_losses: Dict[str,Dict[str,float]]
 cname: str = "sres"
 model: str = 'rcan-10-20-64'
 ccustom: Dict[str,Any] = {}
-start_date = datetime( 1,1,1 )
-end_date = datetime( 1,1,1 )
-dt = timedelta(days=1)
 
 configuration = dict(
 	task = "SST-tiles-48",
@@ -21,4 +18,4 @@ configuration = dict(
 
 controller = WorkflowController( cname, configuration )
 controller.initialize( cname, model, **ccustom )
-controller.to_zarr( start_date, end_date, dt )
+controller.to_zarr()

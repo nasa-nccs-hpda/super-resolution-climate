@@ -6,7 +6,7 @@ from sres.base.source.loader.batch import SRDataLoader, FMDataLoader
 import xarray as xa
 import time, numpy as np
 from typing import Dict, List, Optional, Union
-from sres.base.util.dates import date_list, date_bounds
+from sres.base.util.dates import date_list, date_bounds, TimeType
 from datetime import datetime, date
 from sres.base.util.logging import lgm, log_timing
 from sres.base.util.config import cfg
@@ -255,8 +255,8 @@ class SRBatch:
 		#self.norm_data: Dict[str, xa.Dataset] = self.data_loader.load_norm_data()
 		self.channels: List[str] = None
 
-	def get_batch_time_indices(self):
-		return self.data_loader.get_batch_time_indices()
+	def get_dset_time_indices(self) -> List[TimeType]:
+		return self.data_loader.get_dset_time_indices()
 
 	def get_dset_size(self):
 		return self.data_loader.get_dset_size()

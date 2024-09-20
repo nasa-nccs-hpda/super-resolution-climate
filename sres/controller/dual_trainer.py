@@ -239,6 +239,9 @@ class ModelTrainer(object):
 	def load_region_data(self, ctime: TimeType, **kwargs) -> Optional[xarray.DataArray]:
 		return self.get_dataset().load_region_data( ctime, **kwargs )
 
+	def get_dset_time_indices(self) -> List[TimeType]:
+		return self.get_dataset().get_dset_time_indices()
+
 	@property
 	def batch_domain(self) -> batchDomain:
 		return self.get_dataset().batch_domain
@@ -368,9 +371,9 @@ class ModelTrainer(object):
 			tile_range = range(ctile['start'], ctile['end'])
 			return self.tile_index in tile_range
 
-	def to_zarr(self, start_date: datetime, end_date: datetime, dt: timedelta, **kwargs):
+	def to_zarr(self, **kwargs):
 		cfg().task['xyflip'] = False
-		ctimes: List[datetime] = datetime_range( start_date, end_date, dt )
+		ctimes: List[TimeType] = self.get_dset_time_indices()
 		name = kwargs.get( "name", ConfigContext.defaults.get('dataset') )
 		zstore = f"{cfg().platform.processed}/{name}.zarr"
 		for ctime in ctimes:

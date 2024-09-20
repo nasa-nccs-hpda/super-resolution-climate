@@ -147,6 +147,9 @@ class BatchDataset(object):
     def load_region_data(self, ctime: TimeType, **kwargs) -> Optional[xa.DataArray]:
         return self.srbatch.load_region_data( ctime, **kwargs )
 
+    def  get_dset_time_indices(self) -> List[TimeType]:
+        return self.srbatch.get_dset_time_indices()
+
     def get_current_batch_array(self) -> xa.DataArray:
         return self.srbatch.current_batch
 
@@ -188,7 +191,7 @@ class BatchDataset(object):
                         start_coords.append( dindex )
                 lgm().log( f"  ------------- dataset size = {nidx}, target_coord={target_coord}, batch_size={self.batch_size}, start_coords={start_coords}  ------------- ")
         elif self.batch_domain == batchDomain.Tiles:
-            start_coords = self.srbatch.get_batch_time_indices()
+            start_coords = self.srbatch.get_dset_time_indices()
         random.shuffle(start_coords)
         return start_coords
 

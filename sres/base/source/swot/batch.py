@@ -28,8 +28,8 @@ class SWOTDataLoader(SRDataLoader):
 		tile_batch: xa.DataArray = self.loader.select_batch( tile_range )
 		return tile_batch
 
-	def get_batch_time_indices(self):
-		return self.loader.get_batch_time_indices()
+	def get_dset_time_indices(self):
+		return self.loader.get_dset_time_indices()
 
 
 

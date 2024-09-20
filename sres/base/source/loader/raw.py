@@ -25,8 +25,8 @@ class SRRawDataLoader(object):
 	def load_timeslice(self, **kwargs) -> xa.DataArray:
 		raise NotImplementedError("SRRawDataLoader:load_timeslice")
 
-	def get_batch_time_indices(self, **kwargs) -> xa.DataArray:
-		raise NotImplementedError("SRRawDataLoader:get_batch_time_indices")
+	def get_dset_time_indices(self, **kwargs) -> xa.DataArray:
+		raise NotImplementedError("SRRawDataLoader:get_dset_time_indices")
 	@property
 	def norm_stats(self) -> xa.Dataset:
 		raise NotImplementedError("SRRawDataLoader:norm_stats")

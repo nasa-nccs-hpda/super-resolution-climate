@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Any, Mapping, Sequence, Tuple, Union, List, Dict, Literal, Optional
 import xarray as xa
 import time, numpy as np
-from sres.base.util.dates import date_list
+from sres.base.util.dates import date_list, TimeType
 from datetime import date
 from sres.base.util.logging import lgm, log_timing
 from sres.base.util.config import cfg
@@ -45,8 +45,8 @@ class SRDataLoader(object):
 	def load_const_dataset(self, ctile: Dict[str,int] ):
 		raise NotImplementedError("SRDataLoader:load_const_dataset")
 
-	def get_batch_time_indices(self):
-		raise NotImplementedError("SRDataLoader:get_batch_time_indices")
+	def get_dset_time_indices(self) -> List[TimeType]:
+		raise NotImplementedError("SRDataLoader:get_dset_time_indices")
 
 	@classmethod
 	def rcoords( cls, dset: xa.Dataset ):
