@@ -370,7 +370,7 @@ class ModelTrainer(object):
 		ctimes: List[TimeType] = self.get_dataset().get_batch_time_coords()
 		for ctime in ctimes:
 			timeslice: xa.DataArray = self.load_timeslice(ctime)
-			print( f"Loaded timeslice[{timeslice.dims}], shape = {timeslice.shape}\n")
+			print( f"Loaded timeslice({ctime}): dims[{timeslice.dims}], shape{timeslice.shape}\n")
 
 	def process_image(self, tset: TSet, itime: int, **kwargs) -> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
 		seed = kwargs.get('seed', 333)
