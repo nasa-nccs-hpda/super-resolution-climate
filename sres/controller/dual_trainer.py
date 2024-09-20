@@ -379,7 +379,7 @@ class ModelTrainer(object):
 		for ctime in ctimes:
 			tval = np.datetime64(ctime.isoformat()) if (type(ctime) == datetime) else ctime
 			timeslice: xa.DataArray = self.load_region_data(ctime).expand_dims( time = np.array([tval] ) )
-			print( f"Saving timeslice({drepr(ctime)}) to zarr store({name}): dims[{timeslice.dims}], shape{timeslice.shape}")
+			print( f"Saving timeslice({ctime}) to zarr store({name}): dims[{timeslice.dims}], shape{timeslice.shape}")
 			timeslice.to_zarr( store=zstore, append_dim="time")
 
 	def process_image(self, tset: TSet, itime: int, **kwargs) -> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
