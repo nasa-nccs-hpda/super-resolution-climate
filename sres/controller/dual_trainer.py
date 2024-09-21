@@ -1,4 +1,4 @@
-import torch, math
+import torch, math, shutil
 import xarray, traceback, random
 from datetime import datetime, timedelta
 from torch import Tensor
@@ -376,12 +376,13 @@ class ModelTrainer(object):
 		ctimes: List[TimeType] = self.get_dset_time_indices()
 		name = kwargs.get( "name", ConfigContext.defaults.get('dataset') )
 		zstore = f"{cfg().platform.processed}/{name}.zarr"
+		shutil.rmtree(zstore, ignore_errors=True)
 		zargs = {}
 		for ctime in ctimes:
 			tval = np.datetime64(ctime.isoformat()) if (type(ctime) == datetime) else ctime
 			timeslice: xa.DataArray = self.load_region_data(ctime).expand_dims( time = np.array([tval] ) )
 			print( f"Saving timeslice({ctime}) to zarr store({name}): dims[{timeslice.dims}], shape{timeslice.shape}")
-			timeslice.to_zarr( store=zstore, **zargs )
+			timeslice.to_zarr( store=zstore, compute=True, **zargs )
 			zargs[ 'append_dim'] = "time"
 
 	def process_image(self, tset: TSet, itime: int, **kwargs) -> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:

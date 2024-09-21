@@ -18,4 +18,4 @@ configuration = dict(
 
 controller = WorkflowController( cname, configuration )
 controller.initialize( cname, model, **ccustom )
-controller.to_zarr()
+controller.to_zarr( )
