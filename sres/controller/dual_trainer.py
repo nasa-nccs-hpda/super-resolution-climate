@@ -378,6 +378,7 @@ class ModelTrainer(object):
 		zstore = f"{cfg().platform.processed}/{name}.zarr"
 		shutil.rmtree(zstore, ignore_errors=True)
 		zargs = {}
+		print( f"Saving dset {name} to zarr store {zstore}")
 		for ctime in ctimes:
 			tval = np.datetime64(ctime.isoformat()) if (type(ctime) == datetime) else ctime
 			timeslice: xa.DataArray = self.load_region_data(ctime).expand_dims( time = np.array([tval] ) )

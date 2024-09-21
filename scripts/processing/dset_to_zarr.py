@@ -10,7 +10,7 @@ model: str = 'rcan-10-20-64'
 ccustom: Dict[str,Any] = {}
 
 configuration = dict(
-	task = "SST-tiles-48",
+	task = "SSS_SST-tiles-48",
 	dataset = "swot_20-20e",
 	pipeline = "sres",
 	platform = "explore"
