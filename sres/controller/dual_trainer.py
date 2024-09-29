@@ -379,12 +379,19 @@ class ModelTrainer(object):
 		shutil.rmtree(zstore, ignore_errors=True)
 		zargs = {}
 		print( f"Saving dset {name} to zarr store {zstore}")
-		for ctime in ctimes:
+		stats, nts, global_mean, global_std = [], 0.0, 0.0, 0.0
+		for iT, ctime in enumerate(ctimes):
 			tval = np.datetime64(ctime.isoformat()) if (type(ctime) == datetime) else ctime
 			timeslice: xa.DataArray = self.load_region_data(ctime).expand_dims( time = np.array([tval] ) )
+			stats.append( [timeslice.shape[0], np.nanmean(timeslice.values), np.nanstd(timeslice.values)] )
+			nts = nts + timeslice.shape[0]
 			print( f"Saving timeslice({ctime}) to zarr store({name}): dims[{timeslice.dims}], shape{timeslice.shape}")
 			timeslice.to_zarr( store=zstore, compute=True, **zargs )
 			zargs[ 'append_dim'] = "time"
+		for statrec in stats:
+			wt = statrec[0]/nts
+			global_mean += wt * statrec[1]
+			global_std  += wt * statrec[2]
 
 	def process_image(self, tset: TSet, itime: int, **kwargs) -> Tuple[Dict[str,Dict[str,xa.DataArray]], Dict[str,Dict[str,float]]]:
 		seed = kwargs.get('seed', 333)
